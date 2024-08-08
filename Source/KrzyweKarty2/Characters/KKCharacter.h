@@ -14,6 +14,7 @@ class UCharacterDataAsset;
 class UKKAttributeSet;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAbilityAction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeath);
 
 UCLASS()
 class KRZYWEKARTY2_API AKKCharacter : public AActor, public IAbilitySystemInterface
@@ -41,11 +42,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Data")
 	UCharacterDataAsset* CharacterDataAsset;
 
-	UPROPERTY(EditDefaultsOnly, Category="Character Data");
-	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
-
 	UPROPERTY(Replicated, BlueprintReadOnly, Category="Character Data");
-	TArray<FGameplayAbilitySpecHandle> CharacterAbilityHandles;
+	TArray<FGameplayAbilitySpecHandle> CharacterAbilityHandles; // use abilities from client
 
 public:
 	UPROPERTY(BlueprintReadOnly, Replicated, Category="Character Data", VisibleAnywhere)
@@ -71,6 +69,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FAbilityAction OnEndAbility;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	FOnCharacterDeath OnCharacterDeath;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -91,11 +92,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void CancelAllAbilities();
-
-protected:
-
-	UFUNCTION(BlueprintCallable)
-	void ApplyDefaultAttackToSelf(AKKCharacter* AttackSource, TSubclassOf<UGameplayEffect> GameplayEffectClass);
 
 public:
 	// PLAYER STATE //

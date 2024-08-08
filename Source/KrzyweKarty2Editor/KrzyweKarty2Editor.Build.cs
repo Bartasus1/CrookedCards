@@ -11,6 +11,7 @@ public class KrzyweKarty2Editor : ModuleRules
             {
                 "Core", 
                 "AssetTools",
+                "GameplayAbilities"
             }
         );
 
@@ -29,7 +30,8 @@ public class KrzyweKarty2Editor : ModuleRules
                 "PropertyEditor",
                 "EditorStyle",
                 "Kismet",
-                "KismetCompiler"
+                "KismetCompiler",
+                "Blutility", "GameplayAbilitiesEditor"
             }
         );
     }

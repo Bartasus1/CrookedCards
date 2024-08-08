@@ -310,9 +310,9 @@ bool AKKGameBoard::AreCoordinatesValid(FBoardCoordinate BoardCoordinate) const
 
 bool AKKGameBoard::IsBaseInRange(FBoardCoordinate SourceCoordinate) const
 {
-	if(SourceCoordinate.Row == 1 || SourceCoordinate.Row == SizeVertical)
+	if(SourceCoordinate.Row == 1 || SourceCoordinate.Row == SizeVertical) // edge rows of the board
 	{
-		return SourceCoordinate.Column == 1 || SourceCoordinate.Column == 2;
+		return SourceCoordinate.Column == 1 || SourceCoordinate.Column == 2; // center columns of the board
 	}
 
 	return false;

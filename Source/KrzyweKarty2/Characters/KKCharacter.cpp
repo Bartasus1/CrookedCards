@@ -21,7 +21,7 @@
 
 AKKCharacter::AKKCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	bReplicates = true;
 	SetReplicatingMovement(true);
@@ -52,7 +52,7 @@ void AKKCharacter::BeginPlay()
 
 	CharacterWidget = CreateWidget<UCharacterWidget>(GetWorld(), UKKCharacterDeveloperSettings::Get()->CardWidgetClass.LoadSynchronous());
 	CharacterWidget->SetCharacter(this);
-	
+
 	UpdateCharacterWidgetRender();
 
 	if(AKKGameState* GameState = GetWorld()->GetGameState<AKKGameState>())
@@ -80,6 +80,7 @@ void AKKCharacter::OnConstruction(const FTransform& Transform)
 	}
 
 	CardMesh->SetStaticMesh(UKKCharacterDeveloperSettings::Get()->CardMesh.LoadSynchronous());
+	CardMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
 	
 	if(UMaterialInstanceDynamic* DynamicCardMaterial = CardMesh->CreateAndSetMaterialInstanceDynamic(0))
 	{
@@ -144,6 +145,8 @@ TArray<FRelativeDirection> AKKCharacter::GetDirectionsForDefaultAttack() const
 		AttackDirections.Add({Direction * i, 0}); //cross pattern
 		AttackDirections.Add({0, Direction * i});
 	}
+
+	AttackDirections.Add({Direction * 2, 0}); // temp, remove later
 	
 	return AttackDirections;
 }
@@ -151,17 +154,6 @@ TArray<FRelativeDirection> AKKCharacter::GetDirectionsForDefaultAttack() const
 void AKKCharacter::CancelAllAbilities()
 {
 	AbilitySystemComponent->CancelAllAbilities();
-}
-
-void AKKCharacter::ApplyDefaultAttackToSelf(AKKCharacter* AttackSource, TSubclassOf<UGameplayEffect> GameplayEffectClass)
-{
-	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
-	EffectContext.AddSourceObject(AttackSource);
-	EffectContext.AddInstigator(AttackSource, AttackSource);
-
-	AbilitySystemComponent->ApplyGameplayEffectToSelf(GameplayEffectClass->GetDefaultObject<UGameplayEffect>(), 1.f, EffectContext);
-
-	UpdateCharacterWidgetRender();
 }
 
 // ABILITY SYSTEM COMPONENT INITIALIZATION //
@@ -174,11 +166,6 @@ void AKKCharacter::SetPlayerState(AKKPlayerState* NewPlayerState) // Server
 {
 	PlayerState = NewPlayerState;
 	GetAbilitySystemComponent()->InitAbilityActorInfo(PlayerState, this);
-	
-	for (const TSubclassOf<UGameplayAbility> Ability : StartupAbilities) // remove later - dont set startup abilities per actor - move it to the singleton container - DeveloperSettings
-	{
-		GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(Ability, 1));
-	}
 
 	for (uint8 i = 0; i < CharacterDataAsset->ActiveAbilities.Num(); i++) // give character ability with different levels and store a handle to it
 	{

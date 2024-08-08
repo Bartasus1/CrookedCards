@@ -50,6 +50,9 @@ protected:
 public:
 	UFUNCTION(BlueprintNativeEvent)
 	void InitPlayerBase(int32 PlayerID, AKKCharacter* BaseCharacter);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void InitPlayableCharacter(AKKCharacter* Character) const;
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	const FTransform GetTransformForFraction(int32 PlayerID);
@@ -84,7 +87,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Replicated)
 	TArray<FCharacterSlotsRow> GameBoard;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TSubclassOf<ACharacterSlot> CharacterSlotClass;
 
 public:

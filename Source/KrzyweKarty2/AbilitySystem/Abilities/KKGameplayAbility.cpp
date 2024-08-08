@@ -4,8 +4,6 @@
 #include "KKGameplayAbility.h"
 
 #include "Kismet/KismetSystemLibrary.h"
-
-#include "KrzyweKarty2/KKTagsDeveloperSettings.h"
 #include "KrzyweKarty2/Characters/KKCharacter.h"
 #include "KrzyweKarty2/Core/KKGameState.h"
 #include "KrzyweKarty2/GameBoard/CharacterSlot.h"
@@ -23,8 +21,6 @@ bool UKKGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Han
 	{
 		if(Character->CharacterActions >= AbilityActionWeight)
 		{
-			OptionalRelevantTags->AddTag(UKKTagsDeveloperSettings::Get()->ImportantTags.CharacterActions);
-
 			return false;
 		}
 	}

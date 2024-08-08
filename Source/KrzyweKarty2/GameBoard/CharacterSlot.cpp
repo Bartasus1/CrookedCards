@@ -37,6 +37,8 @@ void ACharacterSlot::AssignCharacterToSlot(AKKCharacter* Character)
 	
 	CharacterInSlotUniqueID = Character->GetCharacterUniqueID();
 	Character->CharacterSlotID = CharacterSlotID;
+
+	Character->OnCharacterDeath.AddDynamic(this, &ACharacterSlot::RemoveCharacterFromSlot);
 	
 	Character->SetActorRotation((GetActorForwardVector() * Character->Direction).Rotation());
 	MoveCharacter(Character);
@@ -44,6 +46,11 @@ void ACharacterSlot::AssignCharacterToSlot(AKKCharacter* Character)
 
 void ACharacterSlot::RemoveCharacterFromSlot()
 {
+	if(AKKCharacter* Character = GetCharacterAtSlot())
+	{
+		Character->OnCharacterDeath.RemoveDynamic(this, &ACharacterSlot::RemoveCharacterFromSlot);
+	}
+	
 	CharacterInSlotUniqueID = 0;
 }
 
@@ -132,11 +139,11 @@ bool ACharacterSlot::HasLinkInDirection(const FRelativeDirection& InDirection, F
 	bool bHasLink = false;
 	FRelativeDirection NormalizedDirection = InDirection.Normalize();
 	
-	for (const auto& AllowedDirection : SlotAllowedDirections) // number of allowed slots is between 3 to 8
+	for (const auto& AllowedDirection : SlotAllowedDirections)
 	{
-		if(AllowedDirection == NormalizedDirection)
+		if(AllowedDirection == NormalizedDirection) // todo: BUG! we can return {2,0} which results in selecting a base slot, when we're not at the slot with allowed link to the base
 		{
-			OutDirection = InDirection; // out dir is the same as input, so we get into desired coordinates
+			OutDirection = InDirection; // fix!
 			bHasLink = true;
 			
 			if(bIncludeBaseLink && BaseSlotRelativeDirection.IsValidIndex(0)) // should we even bother looking for base slot connection

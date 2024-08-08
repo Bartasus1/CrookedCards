@@ -30,7 +30,6 @@ AKKPlayerController* AKKGameMode::GetPlayer(uint8 PlayerID)
 APlayerController* AKKGameMode::Login(UPlayer* NewPlayer, ENetRole InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
 {
 	const int32 PlayerNumber = Players.Num(); // 0 for first player and 1 for the second
-	
 	APlayerController* PlayerController =  Super::Login(NewPlayer, InRemoteRole, FString::FromInt(PlayerNumber), Options, UniqueId, ErrorMessage);
 	
 	if (AKKPlayerController* KKPlayerController = Cast<AKKPlayerController>(PlayerController))
@@ -52,7 +51,18 @@ void AKKGameMode::PostLogin(APlayerController* NewPlayer)
 		GetWorldTimerManager().SetTimerForNextTick([this, Number]() //by the next frame, GameBoard should have it's BeginPlay called, where it assigns itself to GameMode
 		{
 			//UKismetSystemLibrary::PrintString(this, FString::FromInt(Number));
-			SpawnFractionForPlayer(Players[Number]); // todo: maybe make it delegate based ?
+			SpawnFractionForPlayer(Players[Number]);
+			
+			// todo: maybe make it delegate based ?
+			// something like this
+			// if(GameBoard)
+			// {
+			// 	SpawnFractionForPlayer();
+			// }
+			// else
+			// {
+			// 	OnBoardSelected.Broadcast();
+			// }
 		});
 	}
 }
@@ -75,6 +85,11 @@ void AKKGameMode::SpawnFractionForPlayer(AKKPlayerController* PlayerController) 
 		Character->SetAutonomousProxy(true);
 
 		Character->FinishSpawning(Character->GetTransform()); // allow calling BeginPlay on Characters
+
+		if(Character != FractionCharacters.BaseCharacter)
+		{
+			GameBoard->InitPlayableCharacter(Character);
+		}
 	}
 
 	GameBoard->InitPlayerBase(PlayerController->PlayerID, FractionCharacters.BaseCharacter);

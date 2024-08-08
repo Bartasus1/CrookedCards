@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "KKGameMode.generated.h"
 
+class AKKCharacter;
 class AKKGameBoard;
 class AKKPlayerController;
 /**

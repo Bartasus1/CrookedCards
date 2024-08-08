@@ -26,7 +26,8 @@ public:
 	
 	// MANAGING CHARACTER //
 	void AssignCharacterToSlot(AKKCharacter* Character);
-	
+
+	UFUNCTION()
 	void RemoveCharacterFromSlot();
 
 	UFUNCTION(BlueprintCallable)
@@ -55,13 +56,12 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(BlueprintReadOnly, Replicated, VisibleAnywhere)
-	int32 CharacterInSlotUniqueID = 0; // 0 - no character , any other number - character at the slot | greater than 0 - first player, smaller than 0 - second player
+	int32 CharacterInSlotUniqueID = 0; // 0 - no character, any other number - character at the slot | greater than 0 - first player, smaller than 0 - second player
 
 	UPROPERTY(BlueprintReadOnly, Replicated, VisibleAnywhere)
-	int32 CharacterSlotID = 0;
+	int32 CharacterSlotID = 0; // slot's own ID, set at the BeginPlay
 
-
-
+	
 protected:
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<UCharacterSlotStatus> LocalStatus;
