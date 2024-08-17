@@ -8,12 +8,70 @@
 
 #include "KrzyweKarty2/Characters/KKCharacter.h"
 
+UCharacterAttackExecCalculation::UCharacterAttackExecCalculation()
+{
+	DEFINE_ATTRIBUTE_CAPTUREDEF(UKKAttributeSet, Health, Target, false);
+	DEFINE_ATTRIBUTE_CAPTUREDEF(UKKAttributeSet, Defence, Target, false);
+
+	DEFINE_ATTRIBUTE_CAPTUREDEF(UKKAttributeSet, Strength, Source, false);
+
+
+	RelevantAttributesToCapture.Add(HealthDef);
+	RelevantAttributesToCapture.Add(DefenceDef);
+	RelevantAttributesToCapture.Add(StrengthDef);
+}
+
 void UCharacterAttackExecCalculation::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	UAbilitySystemComponent* TargetASC = ExecutionParams.GetTargetAbilitySystemComponent();
-	const float Health = TargetASC->GetNumericAttribute(UKKAttributeSet::GetHealthAttribute());
+	UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent();
 
-	if(Health <= 0.f)
+	AKKCharacter* TargetCharacter = Cast<AKKCharacter>(TargetASC->GetOwnerActor());
+	AKKCharacter* SourceCharacter = Cast<AKKCharacter>(SourceASC->GetOwnerActor());
+
+	if(!TargetASC || ! SourceASC || !TargetCharacter || !SourceCharacter) // if any ASC or character is not valid - stop
+	{
+		return;
+	}
+
+	FGameplayEffectSpec* Spec = ExecutionParams.GetOwningSpecForPreExecuteMod();
+
+	const FGameplayTagContainer* TargetTags = Spec->CapturedTargetTags.GetAggregatedTags();
+	const FGameplayTagContainer* SourceTags = Spec->CapturedSourceTags.GetAggregatedTags();
+
+	FAggregatorEvaluateParameters EvaluationParameters;
+	EvaluationParameters.TargetTags = TargetTags;
+	EvaluationParameters.SourceTags = SourceTags;
+	
+	float Health = 0.f;
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(HealthDef, EvaluationParameters, Health);
+	
+	float Defence = 0.f;
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DefenceDef, EvaluationParameters, Defence);
+	Defence = FMath::Max(0.f, Defence);
+
+	float Strength = 0.f;
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(StrengthDef, EvaluationParameters, Strength);
+
+	FAttackInfo AttackInfo;
+	AttackInfo.AttackType = EAttackType::DefaultAttack;
+	
+	if(!TargetCharacter->Target_CanBeAttacked(SourceCharacter, AttackInfo))
+	{
+		return;
+	}
+	
+	SourceCharacter->Attacker_OnAttackBegin(TargetCharacter, AttackInfo, *Spec);
+	
+	Strength = Spec->GetSetByCallerMagnitude("Strength", false, Strength);
+
+	const float Damage = FMath::Max(Strength - Defence, 0.f);
+	Health -= Damage;
+
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(HealthProperty, EGameplayModOp::Override, Health));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DefenceProperty, EGameplayModOp::Additive, -1.f));
+	
+	if(Health <= 0.f) // character has died
 	{
 		if(AKKCharacter* Character = Cast<AKKCharacter>(TargetASC->GetOwnerActor()))
 		{
@@ -21,4 +79,6 @@ void UCharacterAttackExecCalculation::Execute_Implementation(const FGameplayEffe
             Character->Destroy();
 		}
 	}
+
+	SourceCharacter->Attacker_OnAttackEnd(TargetCharacter, AttackInfo, OutExecutionOutput);
 }

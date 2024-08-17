@@ -25,6 +25,26 @@ struct FCharacterStats
 	uint8 MaxAttackRange = 1;
 };
 
+UENUM(BlueprintType)
+enum class EAttackType : uint8
+{
+	DefaultAttack,
+	ActiveAbility,
+	PassiveAbility
+};
+
+USTRUCT(BlueprintType)
+struct FAttackInfo // any info about an attack that can be useful
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	EAttackType AttackType;
+	
+};
+
+
+
 USTRUCT(BlueprintType)
 struct FAbilityDescription
 {

@@ -41,6 +41,19 @@ UAbilitySystemComponent* AKKCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+bool AKKCharacter::Target_CanBeAttacked(AKKCharacter* Attacker, const FAttackInfo& AttackInfo)
+{
+	return true;
+}
+
+void AKKCharacter::Attacker_OnAttackBegin(AKKCharacter* TargetCharacter, const FAttackInfo& AttackInfo, FGameplayEffectSpec& Spec)
+{
+}
+
+void AKKCharacter::Attacker_OnAttackEnd(AKKCharacter* TargetCharacter, const FAttackInfo& AttackInfo, FGameplayEffectCustomExecutionOutput& OutExecutionOutput)
+{
+}
+
 void AKKCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -127,7 +140,6 @@ TArray<FRelativeDirection> AKKCharacter::GetDirectionsForMovement() const
 		MovementDirections.Add({Direction * i, 0}); //cross pattern
 		MovementDirections.Add({0, Direction * i});
 	}
-	MovementDirections.Add({Direction * 2, 0}); // temp, move to Kawalerzysta
 	
 	return MovementDirections;
 }
@@ -145,8 +157,6 @@ TArray<FRelativeDirection> AKKCharacter::GetDirectionsForDefaultAttack() const
 		AttackDirections.Add({Direction * i, 0}); //cross pattern
 		AttackDirections.Add({0, Direction * i});
 	}
-
-	AttackDirections.Add({Direction * 2, 0}); // temp, remove later
 	
 	return AttackDirections;
 }
@@ -156,10 +166,20 @@ void AKKCharacter::CancelAllAbilities()
 	AbilitySystemComponent->CancelAllAbilities();
 }
 
+AKKGameBoard* AKKCharacter::GetGameBoard() const
+{
+	return GetWorld()->GetGameState<AKKGameState>()->GetGameBoard();
+}
+
 // ABILITY SYSTEM COMPONENT INITIALIZATION //
 void AKKCharacter::OnRep_PlayerState() // Client
 {
 	GetAbilitySystemComponent()->InitAbilityActorInfo(PlayerState, this);
+	
+	if(CharacterWidget) // update widget
+	{
+		CharacterWidget->SetCharacter(this); 
+	}
 }
 
 void AKKCharacter::SetPlayerState(AKKPlayerState* NewPlayerState) // Server

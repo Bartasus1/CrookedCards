@@ -43,6 +43,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetCharacter(AKKCharacter* InCharacter);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnCharacterSet();
+
 	UFUNCTION(BlueprintCallable)
 	void UpdateAllAttributeWidgets() const;
 

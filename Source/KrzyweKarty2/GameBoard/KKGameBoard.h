@@ -42,6 +42,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void MoveCharacterToSlot(AKKCharacter* Character, ACharacterSlot* CharacterSlot);
+
+	uint8 GetDistanceBetweenSlots(uint8 SlotA, uint8 SlotB);
 	
 protected:
 
@@ -73,8 +75,6 @@ protected:
 	ACharacterSlot* CreateSlotActor(const FVector& SlotLocation, const FRotator& SlotRotation, bool bExecuteImmediateMovement = true);
 	void CreateBaseSlot(uint8 BaseIndex);
 	void CreateGameBoard();
-
-	void CreateConnections();
 	
 	ACharacterSlot* GetBaseSlotByPlayerID(uint8 BaseIndex);
 private:

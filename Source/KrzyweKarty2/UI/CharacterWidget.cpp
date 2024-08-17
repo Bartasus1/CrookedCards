@@ -16,6 +16,8 @@ void UCharacterWidget::SetCharacter(AKKCharacter* InCharacter)
 
 		CharacterImage->SetBrushFromSoftTexture(Character->GetCharacterDataAsset()->CharacterCardTexture);
 		CharacterNameText->SetText(Character->GetCharacterDataAsset()->CharacterName);
+
+		OnCharacterSet();
 	}
 }
 

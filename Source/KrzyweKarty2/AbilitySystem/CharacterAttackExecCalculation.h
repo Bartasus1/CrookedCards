@@ -16,5 +16,12 @@ class KRZYWEKARTY2_API UCharacterAttackExecCalculation : public UGameplayEffectE
 
 public:
 
+	UCharacterAttackExecCalculation();
+
 	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
+	
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Health);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Defence);
+
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Strength);
 };

@@ -3,9 +3,6 @@
 
 #include "CharacterSlot.h"
 #include "CharacterSlotStatus/CharacterSlotStatus.h"
-
-#include "Kismet/KismetSystemLibrary.h"
-
 #include "KrzyweKarty2/Characters/KKCharacter.h"
 #include "KrzyweKarty2/Core/KKGameState.h"
 
@@ -119,45 +116,6 @@ void ACharacterSlot::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ACharacterSlot, CharacterSlotID, COND_InitialOnly);
-	DOREPLIFETIME_CONDITION(ACharacterSlot, SlotAllowedDirections, COND_InitialOnly);
-	DOREPLIFETIME_CONDITION(ACharacterSlot, BaseSlotRelativeDirection, COND_InitialOnly);
 	DOREPLIFETIME(ACharacterSlot, CharacterInSlotUniqueID);
-}
-
-void ACharacterSlot::AddBaseSlotConnection(FRelativeDirection InputDirection, FRelativeDirection OutputDirection)
-{
-	BaseSlotRelativeDirection.Empty();
-	
-	BaseSlotRelativeDirection.Add(InputDirection);
-	BaseSlotRelativeDirection.Add(OutputDirection);
-
-	SlotAllowedDirections.Add(InputDirection); // add input direction, so it gets picked when searching for connections/links
-}
-
-bool ACharacterSlot::HasLinkInDirection(const FRelativeDirection& InDirection, FRelativeDirection& OutDirection, bool bIncludeBaseLink)
-{
-	bool bHasLink = false;
-	FRelativeDirection NormalizedDirection = InDirection.Normalize();
-	
-	for (const auto& AllowedDirection : SlotAllowedDirections)
-	{
-		if(AllowedDirection == NormalizedDirection) // todo: BUG! we can return {2,0} which results in selecting a base slot, when we're not at the slot with allowed link to the base
-		{
-			OutDirection = InDirection; // fix!
-			bHasLink = true;
-			
-			if(bIncludeBaseLink && BaseSlotRelativeDirection.IsValidIndex(0)) // should we even bother looking for base slot connection
-			{
-				if(BaseSlotRelativeDirection[0] == NormalizedDirection) // check if input direction matches slot's input direction for base connection
-				{
-					OutDirection = BaseSlotRelativeDirection[1]; // out dir is a distance to the base
-				}
-			}
-
-			return bHasLink; // finish here, as we already found the connection
-		}
-	}
-
-	return bHasLink;
 }
 

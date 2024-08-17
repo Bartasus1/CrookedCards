@@ -27,16 +27,27 @@ ACharacterSlot* AKKGameBoard::GetCharacterSlotByID(uint8 SlotID, ESlotSelectionP
 ACharacterSlot* AKKGameBoard::GetCharacterSlotByRelativeDirection(uint8 SourceSlotID, FRelativeDirection RelativeDirection, ESlotSelectionPolicy SelectionPolicy, bool bIncludeBaseSlots) const
 {
 	const FBoardCoordinate SourceCoordinates = GetBoardCoordinateByID(SourceSlotID);
-	ACharacterSlot* SourceSlot = GetCharacterSlotByCoordinates(SourceCoordinates, SSP_NoPolicy);
-	
-	FRelativeDirection TargetDirection;
-	if(SourceSlot->HasLinkInDirection(RelativeDirection, TargetDirection, bIncludeBaseSlots))
+	FBoardCoordinate TargetCoordinates(SourceCoordinates.Row + RelativeDirection.VerticalDirection, SourceCoordinates.Column + RelativeDirection.HorizontalDirection);
+
+	if(TargetCoordinates.Row == 0 || TargetCoordinates.Row == SizeVertical + 1) // if target is a base, zero it's column so that coordinates are valid
 	{
-		const FBoardCoordinate TargetCoordinates(SourceCoordinates.Row + TargetDirection.VerticalDirection, SourceCoordinates.Column + TargetDirection.HorizontalDirection);
-		return GetCharacterSlotByCoordinates(TargetCoordinates, SelectionPolicy);
+		TargetCoordinates.Column = 0;
 	}
 	
-	return nullptr;
+	if(!AreCoordinatesValid(TargetCoordinates))
+	{
+		return nullptr;
+	}
+	
+	if(GameBoard[TargetCoordinates.Row].bIsBaseRow) 
+	{
+		if(!IsBaseInRange(SourceCoordinates) || !bIncludeBaseSlots) // return null if target is base but we are at wrong coords or we don't search for base
+		{
+			return nullptr;
+		}
+	}
+
+	return GetCharacterSlotByCoordinates(TargetCoordinates, SelectionPolicy);
 }
 
 ACharacterSlot* AKKGameBoard::GetCharacterSlotByCoordinates(FBoardCoordinate SlotCoordinates, ESlotSelectionPolicy SelectionPolicy) const
@@ -125,6 +136,17 @@ void AKKGameBoard::MoveCharacterToSlot(AKKCharacter* Character, ACharacterSlot* 
 	
 }
 
+uint8 AKKGameBoard::GetDistanceBetweenSlots(uint8 SlotA, uint8 SlotB)
+{
+	const FBoardCoordinate CoordinateA = GetBoardCoordinateByID(SlotA);
+	const FBoardCoordinate CoordinateB = GetBoardCoordinateByID(SlotB);
+
+	const FVector2D VectorA = FVector2D(CoordinateA.Row, CoordinateA.Column);
+	const FVector2D VectorB = FVector2D(CoordinateB.Row, CoordinateB.Column);
+	
+	return FVector2D::Distance(VectorA, VectorB);
+}
+
 void AKKGameBoard::BeginPlay()
 {
 	Super::BeginPlay();
@@ -132,7 +154,6 @@ void AKKGameBoard::BeginPlay()
 	if(AKKGameMode* GameMode = GetWorld()->GetAuthGameMode<AKKGameMode>()) // works only on the server
 	{
 		CreateGameBoard();
-		CreateConnections();
 		
 		GameMode->SetGameBoard(this);
 	}
@@ -202,50 +223,6 @@ void AKKGameBoard::CreateGameBoard()
 	}
 	
 	CreateBaseSlot(1);
-}
-
-void AKKGameBoard::CreateConnections()
-{
-	for (uint8 i = 1; i <= SizeVertical; i++) //skip base rows
-	{
-		for (uint8 j = 0; j < SizeHorizontal; j++)
-		{
-			TArray<FBoardCoordinate> AllowedDirections = {
-				FBoardCoordinate(i + 1, j),		// forward
-				FBoardCoordinate(i - 1, j),		// backward
-				FBoardCoordinate(i, j + 1),		// right
-				FBoardCoordinate(i, j - 1),		// left
-
-				FBoardCoordinate(i + 1, j + 1),	// top right
-				FBoardCoordinate(i + 1, j - 1),	// top left
-				FBoardCoordinate(i - 1, j + 1),	// bottom right
-				FBoardCoordinate(i - 1, j - 1)	// bottom left
-			};
-
-			for (const FBoardCoordinate& BoardCoordinate : AllowedDirections)
-			{
-				if(AreCoordinatesValid(BoardCoordinate) && !GameBoard[BoardCoordinate.Row].bIsBaseRow) // make sure to not include connections to the base slots here
-				{
-					FRelativeDirection Direction = FRelativeDirection(BoardCoordinate.Row - i, BoardCoordinate.Column - j);
-					GameBoard[i].CharacterSlots[j]->SlotAllowedDirections.Add(Direction);
-				}
-			}
-
-			if(IsBaseInRange(FBoardCoordinate(i, j))) // add connection to base slot only when at the correct slot
-			{
-				const uint8 SlotID = (i - 1) * SizeHorizontal + j;
-				if(const uint8 BaseInRangeID = GetClosestBaseSlotID(SlotID); BaseInRangeID != -1)
-				{
-					const FBoardCoordinate BaseCoordinate = GetBoardCoordinateByID(BaseInRangeID);
-					
-					const FRelativeDirection DirectionToBase = FRelativeDirection(BaseCoordinate.Row - i, BaseCoordinate.Column - j); // actual distance to base slot
-					const FRelativeDirection RelativeDirectionToBase = FRelativeDirection(DirectionToBase.VerticalDirection / FMath::Abs(DirectionToBase.VerticalDirection), 0); // relative direction that's set for the slot
-
-					GameBoard[i].CharacterSlots[j]->AddBaseSlotConnection(RelativeDirectionToBase, DirectionToBase);
-				}
-			}
-		}
-	}
 }
 
 ACharacterSlot* AKKGameBoard::GetBaseSlotByPlayerID(uint8 BaseIndex)

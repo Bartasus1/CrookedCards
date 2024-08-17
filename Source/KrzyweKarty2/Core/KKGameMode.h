@@ -33,7 +33,7 @@ private:
 	void SpawnFractionForPlayer(AKKPlayerController* PlayerController) const;
 	
 protected:
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	TArray<AKKPlayerController*> Players;
 
 	UPROPERTY()

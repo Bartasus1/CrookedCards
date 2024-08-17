@@ -10,7 +10,7 @@ public class KrzyweKarty2 : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayAbilities", "GameplayTags", "GameplayTasks", "UMG", "Slate", "SlateCore", "RenderCore", "DeveloperSettings"});
+		PublicDependencyModuleNames.AddRange(new string[] { "GameplayAbilities", "GameplayTags", "GameplayTasks", "UMG", "Slate", "SlateCore", "RenderCore", "DeveloperSettings"});
 
 		if (Target.bBuildEditor)
 		{

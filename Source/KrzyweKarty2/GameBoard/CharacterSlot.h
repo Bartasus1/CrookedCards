@@ -69,16 +69,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UMaterialInstanceDynamic> MaterialInstanceDynamic;
 
-	UPROPERTY(BlueprintReadOnly, Replicated, VisibleAnywhere)
-	TArray<FRelativeDirection> SlotAllowedDirections;
-
-	UPROPERTY(BlueprintReadOnly, Replicated, VisibleAnywhere)
-	TArray<FRelativeDirection> BaseSlotRelativeDirection; // using [0] & [1] as a substitute for TPair, which does not replicate | [0] - input RelativeDirection, [1] - actual (math) direction to base slot
-
-	void AddBaseSlotConnection(FRelativeDirection InputDirection, FRelativeDirection OutputDirection);
-	
-	bool HasLinkInDirection(const FRelativeDirection& InDirection, FRelativeDirection& OutDirection, bool bIncludeBaseLink);
-
 	friend class AKKGameBoard;
 	
 };

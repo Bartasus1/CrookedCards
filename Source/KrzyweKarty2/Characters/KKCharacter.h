@@ -8,10 +8,12 @@
 #include "KrzyweKarty2/AbilitySystem/Attributes/KKAttributeSet.h"
 #include "KKCharacter.generated.h"
 
+class AKKGameBoard;
 class AKKPlayerState;
 class UCharacterWidget;
 class UCharacterDataAsset;
 class UKKAttributeSet;
+struct FGameplayEffectCustomExecutionOutput;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAbilityAction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeath);
@@ -72,6 +74,18 @@ public:
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnCharacterDeath OnCharacterDeath;
+
+	// ATTACK FUNCTIONS
+	// Target
+	virtual bool Target_CanBeAttacked(AKKCharacter* Attacker, const FAttackInfo& AttackInfo);
+
+	// todo: Make less generic functions to:
+	// * Allow Attacker to specify Damage for DefaultAttack
+	// * Notify Target that it's gonna be attacked with *such* amount of damage etc. - look Paladin second passive ability
+	
+	// Attacker
+	virtual void Attacker_OnAttackBegin(AKKCharacter* TargetCharacter, const FAttackInfo& AttackInfo, FGameplayEffectSpec& Spec); // Spec to update attributes
+	virtual void Attacker_OnAttackEnd(AKKCharacter* TargetCharacter, const FAttackInfo& AttackInfo, FGameplayEffectCustomExecutionOutput& OutExecutionOutput); // ExecutionOutput to modify other attributes for any character after attack
 	
 protected:
 	virtual void BeginPlay() override;
@@ -92,6 +106,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void CancelAllAbilities();
+
+protected:
+
+	UFUNCTION(BlueprintCallable)
+	AKKGameBoard* GetGameBoard() const;
 
 public:
 	// PLAYER STATE //
