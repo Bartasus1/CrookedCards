@@ -143,6 +143,7 @@ private:
 
 public:
 
+	
 	UKKAttributeSet* GetAttributeSet() const
 	{
 		return AttributeSet;
@@ -153,23 +154,45 @@ public:
 		return CharacterDataAsset;
 	}
 
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE int32 GetHealth() const
 	{
 		return AttributeSet->GetHealth();
 	}
 
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE int32 GetMana() const
 	{
 		return AttributeSet->GetMana();
 	}
 
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE int32 GetDefence() const
 	{
 		return AttributeSet->GetDefence();
 	}
 
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE int32 GeStrength() const
 	{
 		return AttributeSet->GetStrength();
+	}
+
+	UFUNCTION(BlueprintPure = false)
+	FORCEINLINE void ModifyHealth(const EGameplayModOp::Type Modification, const float Magnitude) const
+	{
+		AbilitySystemComponent->ApplyModToAttribute(UKKAttributeSet::GetHealthAttribute(), Modification, Magnitude);
+	}
+
+	UFUNCTION(BlueprintPure = false)
+	FORCEINLINE void ModifyMana(const EGameplayModOp::Type Modification, const float Magnitude) const
+	{
+		AbilitySystemComponent->ApplyModToAttribute(UKKAttributeSet::GetManaAttribute(), Modification, Magnitude);
+	}
+
+	UFUNCTION(BlueprintPure = false)
+	FORCEINLINE void ModifyDefence(const EGameplayModOp::Type Modification, const float Magnitude) const
+	{
+		AbilitySystemComponent->ApplyModToAttribute(UKKAttributeSet::GetDefenceAttribute(), Modification, Magnitude);
 	}
 };

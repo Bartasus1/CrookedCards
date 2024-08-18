@@ -37,7 +37,7 @@ void ACharacterSlot::AssignCharacterToSlot(AKKCharacter* Character)
 
 	Character->OnCharacterDeath.AddDynamic(this, &ACharacterSlot::RemoveCharacterFromSlot);
 	
-	Character->SetActorRotation((GetActorForwardVector() * Character->Direction).Rotation());
+	//Character->SetActorRotation((GetActorForwardVector() * Character->Direction).Rotation());
 	MoveCharacter(Character);
 }
 

@@ -90,6 +90,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TSubclassOf<ACharacterSlot> CharacterSlotClass;
 
+	TArray<uint8> BaseIndexes; 
+
 public:
 	UFUNCTION(BlueprintCallable)
 	TArray<ACharacterSlot*> GetCharacterSlotsArray() const;

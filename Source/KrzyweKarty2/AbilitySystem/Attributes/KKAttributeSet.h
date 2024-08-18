@@ -10,12 +10,6 @@
 
 #include "KKAttributeSet.generated.h"
 
-#define GAMEPLAYATTRIBUTE_MAX_VALUE(PropertyName) \
-	FORCEINLINE int32 GetMax##PropertyName##Value() \
-	{ \
-		return MaxCharacterStats->PropertyName; \
-	}
-
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \

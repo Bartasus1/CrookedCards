@@ -17,6 +17,7 @@ AKKGameBoard::AKKGameBoard()
 	PrimaryActorTick.bCanEverTick = false;
 
 	CharacterSlotClass = ACharacterSlot::StaticClass();
+	BaseIndexes.Init(0, 2);
 }
 
 ACharacterSlot* AKKGameBoard::GetCharacterSlotByID(uint8 SlotID, ESlotSelectionPolicy SelectionPolicy) const
@@ -141,6 +142,14 @@ uint8 AKKGameBoard::GetDistanceBetweenSlots(uint8 SlotA, uint8 SlotB)
 	const FBoardCoordinate CoordinateA = GetBoardCoordinateByID(SlotA);
 	const FBoardCoordinate CoordinateB = GetBoardCoordinateByID(SlotB);
 
+	if(IsBaseInRange(CoordinateA) || IsBaseInRange(CoordinateB))
+	{
+		if(BaseIndexes.Contains(SlotA) || BaseIndexes.Contains(SlotB))
+		{
+			return 1;
+		}
+	}
+
 	const FVector2D VectorA = FVector2D(CoordinateA.Row, CoordinateA.Column);
 	const FVector2D VectorB = FVector2D(CoordinateB.Row, CoordinateB.Column);
 	
@@ -194,6 +203,7 @@ void AKKGameBoard::CreateBaseSlot(uint8 BaseIndex)
 	BaseSlotRow.Add(BaseCharacterSlot);
 	
 	GameBoard.Add(BaseSlotRow);
+	BaseIndexes[BaseIndex] = BaseCharacterSlot->CharacterSlotID;
 	
 }
 

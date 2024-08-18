@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "KKGameMode.generated.h"
 
+class AKKPlayerState;
 class AKKCharacter;
 class AKKGameBoard;
 class AKKPlayerController;
@@ -23,6 +24,9 @@ public:
 	void SetGameBoard(AKKGameBoard* NewGameBoard);
 
 	AKKPlayerController* GetPlayer(uint8 PlayerID);
+
+	UFUNCTION(BlueprintCallable)
+	void EndGame(AKKPlayerState* Looser);
 	
 protected:
 	virtual APlayerController* Login(UPlayer* NewPlayer, ENetRole InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;

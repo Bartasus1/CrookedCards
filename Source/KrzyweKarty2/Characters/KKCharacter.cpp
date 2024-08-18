@@ -6,8 +6,12 @@
 #include "CharacterDataAsset.h"
 
 #include "Blueprint/UserWidget.h"
+
+#include "Components/BaseCharacterComponent.h"
+
 #include "Engine/TextureRenderTarget2D.h"
 
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 #include "KrzyweKarty2/KKCharacterDeveloperSettings.h"
@@ -74,6 +78,14 @@ void AKKCharacter::BeginPlay()
 	}
 
 	AbilitySystemComponent->AbilityFailedCallbacks.AddUObject(this, &AKKCharacter::PrintAbilityFailure);
+
+	if(APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0)) // rotate towards local player
+	{
+		if(PlayerController->IsLocalPlayerController() && GetComponentByClass<UBaseCharacterComponent>() == nullptr)
+		{
+			SetActorRotation(PlayerController->GetControlRotation());
+		}
+	}
 }
 
 void AKKCharacter::Tick(float DeltaSeconds)

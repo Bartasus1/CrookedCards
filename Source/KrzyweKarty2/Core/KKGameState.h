@@ -6,11 +6,14 @@
 #include "GameFramework/GameStateBase.h"
 #include "KKGameState.generated.h"
 
+class AKKPlayerState;
 class AKKGameBoard;
 class AKKCharacter;
 /**
  * 
  */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWinnerDecided, AKKPlayerState*, Winner);
 
 
 UCLASS()
@@ -46,11 +49,20 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Replicated)
 	bool bFirstPlayerTurn = true;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnWinnerDecided OnWinnerDecided;
 	
 private:
 	
 	UPROPERTY(BlueprintReadOnly, Replicated, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<AKKGameBoard> GameBoard;
 
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing="OnRep_Winner", meta=(AllowPrivateAccess="true"))
+	AKKPlayerState* Winner;
+
+	UFUNCTION()
+	void OnRep_Winner() const;
+	
 	friend class AKKGameMode;
 };

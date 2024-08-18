@@ -5,6 +5,9 @@
 #include "KKGameState.h"
 #include "KKPlayerController.h"
 #include "KKPlayerState.h"
+
+#include "Kismet/KismetSystemLibrary.h"
+
 #include "KrzyweKarty2/Characters/KKCharacter.h"
 #include "KrzyweKarty2/GameBoard/KKGameBoard.h"
 
@@ -25,6 +28,22 @@ void AKKGameMode::SetGameBoard(AKKGameBoard* NewGameBoard)
 AKKPlayerController* AKKGameMode::GetPlayer(uint8 PlayerID)
 {
 	return Players[PlayerID];
+}
+
+void AKKGameMode::EndGame(AKKPlayerState* Looser)
+{
+	if(AKKPlayerController* PlayerController = Cast<AKKPlayerController>(Looser->GetPlayerController()))
+	{
+		const int32 WinnerID = 1 - PlayerController->PlayerID; // 1 - 0 = 1; 1 - 1 = 0
+		
+		AKKPlayerController* Winner = GetPlayer(WinnerID);
+
+		FString TestString = "Winner: " + PlayerController->PlayerState->GetPlayerName() + " " + FString::FromInt(WinnerID);
+		UKismetSystemLibrary::PrintString(this, TestString);
+
+		GetGameState<AKKGameState>()->Winner = Cast<AKKPlayerState>(Winner->PlayerState);
+		GetGameState<AKKGameState>()->OnRep_Winner();
+	}
 }
 
 APlayerController* AKKGameMode::Login(UPlayer* NewPlayer, ENetRole InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)

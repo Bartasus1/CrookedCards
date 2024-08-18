@@ -57,3 +57,8 @@ void AKKGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME_CONDITION(AKKGameState, GameBoard, COND_InitialOnly);
 }
 
+void AKKGameState::OnRep_Winner() const
+{
+	OnWinnerDecided.Broadcast(Winner);
+}
+
