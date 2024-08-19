@@ -45,17 +45,14 @@ UAbilitySystemComponent* AKKCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-bool AKKCharacter::Target_CanBeAttacked(AKKCharacter* Attacker, const FAttackInfo& AttackInfo)
+bool AKKCharacter::Target_CanBeAttacked_Implementation(AKKCharacter* Attacker, const FAttackInfo& AttackInfo)
 {
 	return true;
 }
 
-void AKKCharacter::Attacker_OnAttackBegin(AKKCharacter* TargetCharacter, const FAttackInfo& AttackInfo, FGameplayEffectSpec& Spec)
+float AKKCharacter::Attacker_CalculateDamage_Implementation(AKKCharacter* TargetCharacter, const FAttackInfo& AttackInfo)
 {
-}
-
-void AKKCharacter::Attacker_OnAttackEnd(AKKCharacter* TargetCharacter, const FAttackInfo& AttackInfo, FGameplayEffectCustomExecutionOutput& OutExecutionOutput)
-{
+	return GetStrength();
 }
 
 void AKKCharacter::BeginPlay()
@@ -139,7 +136,7 @@ TArray<uint8> AKKCharacter::GetSlotsForCharacterSpawn() const
 	return CharacterSlots;
 }
 
-TArray<FRelativeDirection> AKKCharacter::GetDirectionsForMovement() const
+TArray<FRelativeDirection> AKKCharacter::GetDirectionsForMovement_Implementation() const
 {
 	TArray<FRelativeDirection> MovementDirections;
 	const int32 MovementRange = 1;
@@ -156,7 +153,7 @@ TArray<FRelativeDirection> AKKCharacter::GetDirectionsForMovement() const
 	return MovementDirections;
 }
 
-TArray<FRelativeDirection> AKKCharacter::GetDirectionsForDefaultAttack() const
+TArray<FRelativeDirection> AKKCharacter::GetDirectionsForDefaultAttack_Implementation() const
 {
 	TArray<FRelativeDirection> AttackDirections;
 	const int32 AttackRange = CharacterDataAsset->CharacterStats.MaxAttackRange;

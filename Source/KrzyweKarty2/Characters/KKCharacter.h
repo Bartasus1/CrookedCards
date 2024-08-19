@@ -41,13 +41,13 @@ protected:
 	UPROPERTY(Transient)
 	UKKAttributeSet* AttributeSet; //Cached attribute set
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Data")
-	UCharacterDataAsset* CharacterDataAsset;
-
 	UPROPERTY(Replicated, BlueprintReadOnly, Category="Character Data");
 	TArray<FGameplayAbilitySpecHandle> CharacterAbilityHandles; // use abilities from client
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Data")
+	UCharacterDataAsset* CharacterDataAsset;
+	
 	UPROPERTY(BlueprintReadOnly, Replicated, Category="Character Data", VisibleAnywhere)
 	int32 Direction = 1;
 
@@ -75,17 +75,30 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnCharacterDeath OnCharacterDeath;
 
+	// ---------------------------------------------------------
 	// ATTACK FUNCTIONS
-	// Target
-	virtual bool Target_CanBeAttacked(AKKCharacter* Attacker, const FAttackInfo& AttackInfo);
+	// ---------------------------------------------------------
+		// Target
+	UFUNCTION(BlueprintNativeEvent)
+	bool Target_CanBeAttacked(AKKCharacter* Attacker, const FAttackInfo& AttackInfo);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void Target_BeforeAttackReceive(AKKCharacter* Attacker, const FAttackInfo& AttackInfo, float& DamageToReceive); // target can change damage based on some conditions
 
 	// todo: Make less generic functions to:
 	// * Allow Attacker to specify Damage for DefaultAttack
 	// * Notify Target that it's gonna be attacked with *such* amount of damage etc. - look Paladin second passive ability
 	
-	// Attacker
-	virtual void Attacker_OnAttackBegin(AKKCharacter* TargetCharacter, const FAttackInfo& AttackInfo, FGameplayEffectSpec& Spec); // Spec to update attributes
-	virtual void Attacker_OnAttackEnd(AKKCharacter* TargetCharacter, const FAttackInfo& AttackInfo, FGameplayEffectCustomExecutionOutput& OutExecutionOutput); // ExecutionOutput to modify other attributes for any character after attack
+	
+		// Attacker
+	UFUNCTION(BlueprintNativeEvent)
+	float Attacker_CalculateDamage(AKKCharacter* TargetCharacter, const FAttackInfo& AttackInfo);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void Attacker_OnAttackBegin(AKKCharacter* TargetCharacter, const FAttackInfo& AttackInfo);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void Attacker_OnAttackEnd(AKKCharacter* TargetCharacter, const FAttackInfo& AttackInfo);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -98,11 +111,11 @@ public:
 	UFUNCTION(BlueprintPure)
 	virtual TArray<uint8> GetSlotsForCharacterSpawn() const;
 	
-	UFUNCTION(BlueprintPure)
-	virtual TArray<FRelativeDirection> GetDirectionsForMovement() const;
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure)
+	TArray<FRelativeDirection> GetDirectionsForMovement() const;
 	
-	UFUNCTION(BlueprintPure)
-	virtual TArray<FRelativeDirection> GetDirectionsForDefaultAttack() const;
+	UFUNCTION(BlueprintNativeEvent,BlueprintPure)
+	TArray<FRelativeDirection> GetDirectionsForDefaultAttack() const;
 
 	UFUNCTION(BlueprintCallable)
 	void CancelAllAbilities();
@@ -173,7 +186,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE int32 GeStrength() const
+	FORCEINLINE int32 GetStrength() const
 	{
 		return AttributeSet->GetStrength();
 	}

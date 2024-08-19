@@ -12,13 +12,9 @@ UCharacterAttackExecCalculation::UCharacterAttackExecCalculation()
 {
 	DEFINE_ATTRIBUTE_CAPTUREDEF(UKKAttributeSet, Health, Target, false);
 	DEFINE_ATTRIBUTE_CAPTUREDEF(UKKAttributeSet, Defence, Target, false);
-
-	DEFINE_ATTRIBUTE_CAPTUREDEF(UKKAttributeSet, Strength, Source, false);
-
-
+	
 	RelevantAttributesToCapture.Add(HealthDef);
 	RelevantAttributesToCapture.Add(DefenceDef);
-	RelevantAttributesToCapture.Add(StrengthDef);
 }
 
 void UCharacterAttackExecCalculation::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
@@ -50,9 +46,7 @@ void UCharacterAttackExecCalculation::Execute_Implementation(const FGameplayEffe
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DefenceDef, EvaluationParameters, Defence);
 	Defence = FMath::Max(0.f, Defence);
 
-	float Strength = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(StrengthDef, EvaluationParameters, Strength);
-
+	
 	FAttackInfo AttackInfo;
 	AttackInfo.AttackType = EAttackType::DefaultAttack;
 	
@@ -61,24 +55,23 @@ void UCharacterAttackExecCalculation::Execute_Implementation(const FGameplayEffe
 		return;
 	}
 	
-	SourceCharacter->Attacker_OnAttackBegin(TargetCharacter, AttackInfo, *Spec);
+	SourceCharacter->Attacker_OnAttackBegin(TargetCharacter, AttackInfo); // notify attacker
+
+	float Strength = SourceCharacter->Attacker_CalculateDamage(TargetCharacter, AttackInfo); // attacker calculate damage
+
+	TargetCharacter->Target_BeforeAttackReceive(SourceCharacter, AttackInfo, Strength); // target can modify damage based on some conditions
+
 	
-	Strength = Spec->GetSetByCallerMagnitude("Strength", false, Strength);
-
 	const float Damage = FMath::Max(Strength - Defence, 0.f);
-	Health -= Damage;
 
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(HealthProperty, EGameplayModOp::Override, Health));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(HealthProperty, EGameplayModOp::Additive, -Damage));
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DefenceProperty, EGameplayModOp::Additive, -1.f));
 	
-	if(Health <= 0.f) // character has died
+	if(Health - Damage <= 0.f) // character has died
 	{
-		if(AKKCharacter* Character = Cast<AKKCharacter>(TargetASC->GetOwnerActor()))
-		{
-			Character->OnCharacterDeath.Broadcast();
-            Character->Destroy();
-		}
+		TargetCharacter->OnCharacterDeath.Broadcast();
+        TargetCharacter->Destroy();
 	}
 
-	SourceCharacter->Attacker_OnAttackEnd(TargetCharacter, AttackInfo, OutExecutionOutput);
+	SourceCharacter->Attacker_OnAttackEnd(TargetCharacter, AttackInfo);
 }
