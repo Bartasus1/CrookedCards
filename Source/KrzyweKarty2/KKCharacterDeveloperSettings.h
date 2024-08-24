@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettings.h"
+#include "GameplayTags.h"
 #include "KKCharacterDeveloperSettings.generated.h"
 
 class UCharacterWidget;
@@ -29,4 +30,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Config)
 	TSoftClassPtr<UCharacterWidget> CardWidgetClass;
+
+	UPROPERTY(EditAnywhere, Config, meta=(ForceInlineRow))
+	TMap<FGameplayTag, FText> FractionTagToNameMap;
 };

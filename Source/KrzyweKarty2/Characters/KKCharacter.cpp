@@ -45,14 +45,42 @@ UAbilitySystemComponent* AKKCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-bool AKKCharacter::Target_CanBeAttacked_Implementation(AKKCharacter* Attacker, const FAttackInfo& AttackInfo)
+bool AKKCharacter::Target_CanBeAttacked_Implementation(AKKCharacter* Attacker, const UAttackInfo* AttackInfo)
 {
 	return true;
 }
 
-float AKKCharacter::Attacker_CalculateDamage_Implementation(AKKCharacter* TargetCharacter, const FAttackInfo& AttackInfo)
+void AKKCharacter::Attacker_CalculateDamage_Implementation(AKKCharacter* TargetCharacter, UAttackInfo* AttackInfo)
 {
-	return GetStrength();
+	AttackInfo->Damage = GetStrength();
+}
+
+void AKKCharacter::Target_OnAttackEnd_Implementation(AKKCharacter* Attacker, const UAttackInfo* AttackInfo)
+{
+	// todo: make some damage VFX and play them here
+}
+
+
+void AKKCharacter::TryActivateAbility_Implementation(uint8 AbilityIndex)
+{
+	if(PlayerState->bIsUsingAbility)
+	{
+		return;
+	}
+
+	PlayerState->bIsUsingAbility = true;
+
+	AbilitySystemComponent->TryActivateAbility(CharacterAbilityHandles[AbilityIndex]);
+}
+
+void AKKCharacter::CommitAbility_Implementation(uint8 AbilityIndex)
+{
+	if(CharacterDataAsset->ActiveAbilities.IsValidIndex(AbilityIndex))
+	{
+		const float AbilityCost = CharacterDataAsset->ActiveAbilities[AbilityIndex].AbilityCost;
+
+		ModifyHealth(EGameplayModOp::Additive, -AbilityCost);
+	}
 }
 
 void AKKCharacter::BeginPlay()
@@ -120,13 +148,12 @@ void AKKCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(AKKCharacter, CharacterActions);
 	DOREPLIFETIME(AKKCharacter, CharacterSlotID);
 	DOREPLIFETIME(AKKCharacter, PlayerState);
-	DOREPLIFETIME(AKKCharacter, CharacterAbilityHandles);
 }
 
 TArray<uint8> AKKCharacter::GetSlotsForCharacterSpawn() const
 {
 	TArray<uint8> CharacterSlots;
-	const uint8 RowSize = 20;
+	const uint8 RowSize = 4;
 	
 	for(uint8 i = 1; i <= RowSize; i++)
 	{

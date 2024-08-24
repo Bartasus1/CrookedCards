@@ -33,14 +33,22 @@ enum class EAttackType : uint8
 	PassiveAbility
 };
 
-USTRUCT(BlueprintType)
-struct FAttackInfo // any info about an attack that can be useful
+UCLASS(BlueprintType) // originally a struct, but BP events don't support passing structs/primitives by reference
+class UAttackInfo : public UObject // any info about an attack that can be useful
 {
 	GENERATED_BODY()
+public:
+
+	UAttackInfo() { };
+	
+	UPROPERTY(BlueprintReadWrite)
+	EAttackType AttackType = EAttackType::DefaultAttack;
 
 	UPROPERTY(BlueprintReadWrite)
-	EAttackType AttackType;
-	
+	float Damage = 0; // set by character
+
+	UPROPERTY(BlueprintReadWrite)
+	uint8 AttackLevel = 0; // applies when AttackType is Ability
 };
 
 

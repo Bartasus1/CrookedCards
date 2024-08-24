@@ -43,6 +43,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void MoveCharacterToSlot(AKKCharacter* Character, ACharacterSlot* CharacterSlot);
 
+	UFUNCTION(BlueprintCallable)
 	uint8 GetDistanceBetweenSlots(uint8 SlotA, uint8 SlotB);
 	
 protected:

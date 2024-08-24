@@ -26,7 +26,9 @@ class KRZYWEKARTY2_API AKKCharacter : public AActor, public IAbilitySystemInterf
 public:
 	AKKCharacter();
 
+	// --------------------------------------
 	// COMPONENTS //
+	// --------------------------------------
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	UStaticMeshComponent* CardMesh;
 
@@ -36,13 +38,14 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 protected:
-
-	// CHARACTER DATA //
+	// --------------------------------------------------------
+	// CHARACTER DATA
+	// --------------------------------------------------------
 	UPROPERTY(Transient)
 	UKKAttributeSet* AttributeSet; //Cached attribute set
 
-	UPROPERTY(Replicated, BlueprintReadOnly, Category="Character Data");
-	TArray<FGameplayAbilitySpecHandle> CharacterAbilityHandles; // use abilities from client
+	UPROPERTY(BlueprintReadOnly, Category="Character Data");
+	TArray<FGameplayAbilitySpecHandle> CharacterAbilityHandles;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Data")
@@ -66,48 +69,62 @@ public:
 	UPROPERTY(BlueprintReadOnly, Replicated, Category="Character Data")
 	uint8 CharacterSlotID = -1; // from 0 to 21 -> one for each CharacterSlot
 
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-	FAbilityAction OnBeginAbility;
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-	FAbilityAction OnEndAbility;
+	// UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	// FAbilityAction OnBeginAbility;
+	//
+	// UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	// FAbilityAction OnEndAbility;
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnCharacterDeath OnCharacterDeath;
+
+	UPROPERTY(BlueprintReadWrite)
+	EAttackType AttackType; // attack type that character is performing at the moment
 
 	// ---------------------------------------------------------
 	// ATTACK FUNCTIONS
 	// ---------------------------------------------------------
 		// Target
 	UFUNCTION(BlueprintNativeEvent)
-	bool Target_CanBeAttacked(AKKCharacter* Attacker, const FAttackInfo& AttackInfo);
+	bool Target_CanBeAttacked(AKKCharacter* Attacker, const UAttackInfo* AttackInfo);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void Target_BeforeAttackReceive(AKKCharacter* Attacker, const FAttackInfo& AttackInfo, float& DamageToReceive); // target can change damage based on some conditions
+	void Target_BeforeAttackReceive(AKKCharacter* Attacker,  UAttackInfo* AttackInfo); // target can change damage based on some conditions
 
-	// todo: Make less generic functions to:
-	// * Allow Attacker to specify Damage for DefaultAttack
-	// * Notify Target that it's gonna be attacked with *such* amount of damage etc. - look Paladin second passive ability
-	
+	UFUNCTION(BlueprintNativeEvent)
+	void Target_OnAttackEnd(AKKCharacter* Attacker, const UAttackInfo* AttackInfo);
 	
 		// Attacker
 	UFUNCTION(BlueprintNativeEvent)
-	float Attacker_CalculateDamage(AKKCharacter* TargetCharacter, const FAttackInfo& AttackInfo);
+	void Attacker_CalculateDamage(AKKCharacter* TargetCharacter, UAttackInfo* AttackInfo);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void Attacker_OnAttackBegin(AKKCharacter* TargetCharacter, const FAttackInfo& AttackInfo);
+	void Attacker_OnAttackBegin(AKKCharacter* TargetCharacter, const UAttackInfo* AttackInfo);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void Attacker_OnAttackEnd(AKKCharacter* TargetCharacter, const FAttackInfo& AttackInfo);
+	void Attacker_OnAttackEnd(AKKCharacter* TargetCharacter, const UAttackInfo* AttackInfo);
+
+	// ----------------------------------------------------------
+	// ABILITY FUNCTIONS
+	// ----------------------------------------------------------
+
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void TryActivateAbility(uint8 AbilityIndex);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void CommitAbility(uint8 AbilityIndex);
 	
 protected:
+	// ~Begin Actor Interface
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
+	// ~End Actor Interface
 public:
-
+	// ----------------------------------------------------------
+	// CHARACTER ACTION SLOTS
+	// ----------------------------------------------------------
 	UFUNCTION(BlueprintPure)
 	virtual TArray<uint8> GetSlotsForCharacterSpawn() const;
 	
@@ -126,7 +143,9 @@ protected:
 	AKKGameBoard* GetGameBoard() const;
 
 public:
+	// -------------------------------------
 	// PLAYER STATE //
+	// -------------------------------------
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing="OnRep_PlayerState")
 	TObjectPtr<AKKPlayerState> PlayerState;
 
@@ -137,7 +156,9 @@ public:
 	
 
 private:
+	// ----------------------------------------------------
 	// CHARACTER WIDGET //
+	// ----------------------------------------------------
 	const FVector2D DrawSize = {512,700};
 
 	UPROPERTY()
@@ -156,6 +177,10 @@ private:
 
 public:
 
+	bool IsCharacterOnTheBoard() const
+	{
+		return CharacterSlotID != -1;
+	}
 	
 	UKKAttributeSet* GetAttributeSet() const
 	{

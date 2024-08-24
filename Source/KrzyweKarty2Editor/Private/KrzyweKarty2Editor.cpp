@@ -10,6 +10,7 @@
 
 void FKrzyweKarty2EditorModule::StartupModule()
 {
+	// ASSET ACTIONS //
     AssetTypeActions.Add(MakeShared<FCharacterSlotStatusAssetTypeActions>());
     
     IAssetTools& AssetToolsModule = FAssetToolsModule::GetModule().Get();
@@ -22,7 +23,8 @@ void FKrzyweKarty2EditorModule::StartupModule()
     const TSharedPtr<FBoardCoordinateGraphPinFactory> BoardCoordinateGraphPinFactoryGraphPinFactory = MakeShareable(new FBoardCoordinateGraphPinFactory());
     FEdGraphUtilities::RegisterVisualPinFactory(BoardCoordinateGraphPinFactoryGraphPinFactory);
 
-	FCharacterAssetsCreationTool CharacterAssetsCreationTool;
+	// TOOLS //
+	FCharacterAssetsCreationTool();
 }
 
 void FKrzyweKarty2EditorModule::ShutdownModule()

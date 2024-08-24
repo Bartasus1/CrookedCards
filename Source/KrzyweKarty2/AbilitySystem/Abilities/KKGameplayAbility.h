@@ -21,7 +21,10 @@ class KRZYWEKARTY2_API UKKGameplayAbility : public UGameplayAbility
 public:
 
 	UPROPERTY(EditDefaultsOnly)
-	uint8 AbilityActionWeight;
+	uint8 AbilityActionWeight = -1;
+
+	UPROPERTY(EditDefaultsOnly)
+	bool bRequireCharacterOnTheBoard = true;
 
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const override;
 

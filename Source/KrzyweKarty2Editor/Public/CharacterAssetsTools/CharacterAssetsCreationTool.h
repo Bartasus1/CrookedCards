@@ -3,9 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "KrzyweKarty2/AbilitySystem/Abilities/KKGameplayAbility.h"
+
 #include "UObject/Object.h"
 #include "CharacterAssetsCreationTool.generated.h"
 
+class UGameplayAbilityBlueprint;
 class UCharacterDataAsset;
 /**
  * 
@@ -27,7 +31,7 @@ protected:
 
 private:
 	UCharacterDataAsset* CreateCharacterDataAsset(FString AssetPath);
-	UBlueprint* CreateCharacterAbility(FString AssetPath);
+	UGameplayAbilityBlueprint* CreateCharacterAbility(FString AssetPath);
 	UBlueprint* CreateCharacterBlueprint(FString AssetPath);
 
 	template<typename T>

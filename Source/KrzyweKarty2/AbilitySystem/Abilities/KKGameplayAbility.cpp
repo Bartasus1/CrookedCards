@@ -10,22 +10,20 @@
 
 bool UKKGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
-	bool bCanActivate = Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
-	
-	if(AbilityActionWeight == 0)
+	if(const AKKCharacter* Character = Cast<AKKCharacter>(ActorInfo->AvatarActor.Get()))
 	{
-		return bCanActivate;
-	}
+		if(bRequireCharacterOnTheBoard && !Character->IsCharacterOnTheBoard())
+		{
+			return false;
+		}
 	
-	if(const AKKCharacter* Character = Cast<AKKCharacter>(ActorInfo->AvatarActor))
-	{
 		if(Character->CharacterActions >= AbilityActionWeight)
 		{
 			return false;
 		}
 	}
-
-	return bCanActivate;
+	
+	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);;
 }
 
 void UKKGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -51,6 +49,7 @@ void UKKGameplayAbility::CommitExecute(const FGameplayAbilitySpecHandle Handle, 
 {
 	Super::CommitExecute(Handle, ActorInfo, ActivationInfo);
 
+	// todo: uncomment to apply action weight after action execution
 	//SourceCharacter->CharacterActions = AbilityActionWeight;
 }
 

@@ -3,7 +3,8 @@
 #include "CharacterAssetsTools/CharacterAssetsCreationTool.h"
 #include "AssetToolsModule.h"
 #include "ContentBrowserModule.h"
-#include "FileHelpers.h"
+#include "GameplayAbilitiesBlueprintFactory.h"
+#include "GameplayAbilityBlueprint.h"
 #include "IAssetTools.h"
 
 #include "AssetRegistry/AssetRegistryModule.h"
@@ -12,7 +13,7 @@
 
 #include "Kismet2/KismetEditorUtilities.h"
 
-#include "KrzyweKarty2/AbilitySystem/Abilities/KKGameplayAbility.h"
+#include "KrzyweKarty2/AbilitySystem/Abilities/KKCharacterGameplayAbility.h"
 #include "KrzyweKarty2/Characters/CharacterDataAsset.h"
 #include "KrzyweKarty2/Characters/KKCharacter.h"
 
@@ -49,11 +50,11 @@ void FCharacterAssetsCreationTool::CreateCharacterAssets(TArray<FString> Selecte
 {
 	for (FString& Path : SelectedFolderPaths)
 	{
-		FString FolderName = FPaths::GetBaseFilename(Path);
-		Path += "/" + FolderName;
+		FString FolderName = FPaths::GetBaseFilename(Path); // Content/Fractions/Fraction/Character
+		Path += "/" + FolderName; // Content/Fractions/Fraction/Character/Character...File
         
 		UCharacterDataAsset* CharacterDataAsset = CreateCharacterDataAsset(Path);
-		UBlueprint* CharacterAbility = CreateCharacterAbility(Path);
+		UGameplayAbilityBlueprint* CharacterAbility = CreateCharacterAbility(Path);
 		UBlueprint* CharacterBlueprint = CreateCharacterBlueprint(Path);
 
 		if(CharacterDataAsset && CharacterAbility && CharacterBlueprint)
@@ -80,11 +81,15 @@ UCharacterDataAsset* FCharacterAssetsCreationTool::CreateCharacterDataAsset(FStr
 	return CharacterDataAsset;
 }
 
-UBlueprint* FCharacterAssetsCreationTool::CreateCharacterAbility(FString AssetPath)
+UGameplayAbilityBlueprint* FCharacterAssetsCreationTool::CreateCharacterAbility(FString AssetPath)
 {
 	AssetPath += "_Ability";
-
-	return CreateBlueprint<UKKGameplayAbility>(AssetPath);
+	
+	UGameplayAbilitiesBlueprintFactory* GameplayAbilitiesBlueprintFactory = NewObject<UGameplayAbilitiesBlueprintFactory>();
+	GameplayAbilitiesBlueprintFactory->BlueprintType = BPTYPE_Normal;
+	GameplayAbilitiesBlueprintFactory->ParentClass = UKKCharacterGameplayAbility::StaticClass();
+	
+	return CreateAsset<UGameplayAbilityBlueprint>(AssetPath, UGameplayAbilityBlueprint::StaticClass(), GameplayAbilitiesBlueprintFactory);
 }
 
 UBlueprint* FCharacterAssetsCreationTool::CreateCharacterBlueprint(FString AssetPath)

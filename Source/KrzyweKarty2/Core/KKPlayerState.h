@@ -19,5 +19,8 @@ public:
 	AKKPlayerState();
 
 	virtual void BeginPlay() override;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsUsingAbility = false;
 	
 };

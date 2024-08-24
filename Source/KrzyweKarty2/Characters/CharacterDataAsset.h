@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "CharacterStructs.h"
+#include "GameplayTagContainer.h"
+
 #include "Engine/DataAsset.h"
 #include "CharacterDataAsset.generated.h"
 
@@ -20,8 +22,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FText CharacterName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(GetOptions="GetFractions"))
-	FName CharacterFraction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(Categories="Fractions"))
+	FGameplayTag CharacterFraction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSoftObjectPtr<UTexture2D> CharacterCardTexture;
@@ -37,9 +39,5 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(TitleProperty="{AbilityName} --> {AbilityDescription}"), Category="Abilities")
 	TArray<FAbilityDescription> PassiveAbilities;
-	
-private:
-	UFUNCTION(BlueprintPure)
-	TArray<FName> GetFractions();
 	
 };
