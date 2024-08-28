@@ -2,6 +2,9 @@
 
 
 #include "KKGameState.h"
+#include "KKPlayerState.h"
+
+#include "Components/RoundManager.h"
 
 #include "KrzyweKarty2/Characters/KKCharacter.h"
 
@@ -9,7 +12,7 @@
 
 AKKGameState::AKKGameState()
 {
-
+	RoundManager = CreateDefaultSubobject<URoundManager>("Round Manager");
 }
 
 AKKGameBoard* AKKGameState::GetGameBoard() const
@@ -34,18 +37,23 @@ AKKCharacter* AKKGameState::GetCharacterByUniqueID(int32 CharacterUniqueID)
 
 void AKKGameState::MarkCharacterUsedInRound_Implementation(AKKCharacter* Character)
 {
-	CharactersUsedInRound.Add(Character);
+	RoundManager->MarkCharacterUsed(Character);
 }
 
-void AKKGameState::ChangeTurn_Implementation()
+URoundManager* AKKGameState::GetRoundManager() const
 {
-	bFirstPlayerTurn = !bFirstPlayerTurn;
+	return RoundManager.Get();
+}
 
-	for(AKKCharacter* Character : CharactersUsedInRound)
+void AKKGameState::AddPlayerState(APlayerState* PlayerState)
+{
+	Super::AddPlayerState(PlayerState);
+
+	if(HasAuthority())
 	{
-		if(Character != nullptr)
+		if(AKKPlayerState* KKPlayerState = Cast<AKKPlayerState>(PlayerState))
 		{
-			Character->CharacterActions = 0;
+			RoundManager->AddPlayerState(KKPlayerState);
 		}
 	}
 }
@@ -55,6 +63,7 @@ void AKKGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(AKKGameState, GameBoard, COND_InitialOnly);
+	DOREPLIFETIME(AKKGameState, Winner);
 }
 
 void AKKGameState::OnRep_Winner() const

@@ -5,9 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
-
-#include "KrzyweKarty2/Characters/CharacterStructs.h"
-
 #include "CharacterSlot.generated.h"
 
 class UCharacterSlotStatus;

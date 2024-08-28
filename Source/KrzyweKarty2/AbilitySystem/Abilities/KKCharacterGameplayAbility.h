@@ -15,6 +15,6 @@ class KRZYWEKARTY2_API UKKCharacterGameplayAbility : public UKKGameplayAbility /
 	GENERATED_BODY()
 public:
 	UKKCharacterGameplayAbility();
-
+	
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 };

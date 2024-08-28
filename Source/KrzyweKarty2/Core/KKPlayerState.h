@@ -22,5 +22,12 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsUsingAbility = false;
+
+	UPROPERTY(BlueprintReadOnly, Replicated, VisibleAnywhere)
+	bool bIsMyTurn = false;
+
+protected:
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 };

@@ -49,3 +49,11 @@ enum ESlotSelectionPolicy
 	SSP_NoCharacter			UMETA(DisplayName="No Character", ToolTip = "Select only slots which don't have a character on them"),
 	SSP_WithCharacter		UMETA(DisplayName="With Character", ToolTip = "Select only slots which have a character on them"),
 };
+
+UENUM(BlueprintType)
+enum class ESelectionType : uint8 // todo: think about this
+{
+	Blocking,
+	FreeSelection,
+	AdvancedFreeSelection
+};

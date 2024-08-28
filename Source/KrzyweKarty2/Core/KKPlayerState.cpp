@@ -2,8 +2,7 @@
 
 
 #include "KKPlayerState.h"
-
-#include "KrzyweKarty2/Characters/KKCharacter.h"
+#include "Net/UnrealNetwork.h"
 
 AKKPlayerState::AKKPlayerState()
 {
@@ -13,4 +12,11 @@ AKKPlayerState::AKKPlayerState()
 void AKKPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AKKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AKKPlayerState, bIsMyTurn);
 }

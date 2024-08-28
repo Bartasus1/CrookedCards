@@ -69,12 +69,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, Replicated, Category="Character Data")
 	uint8 CharacterSlotID = -1; // from 0 to 21 -> one for each CharacterSlot
 
-	// UPROPERTY(BlueprintAssignable, BlueprintCallable)
-	// FAbilityAction OnBeginAbility;
-	//
-	// UPROPERTY(BlueprintAssignable, BlueprintCallable)
-	// FAbilityAction OnEndAbility;
-
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnCharacterDeath OnCharacterDeath;
 
@@ -110,9 +104,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void TryActivateAbility(uint8 AbilityIndex);
-
+	
 	UFUNCTION(BlueprintNativeEvent)
 	void CommitAbility(uint8 AbilityIndex);
+
+
 	
 protected:
 	// ~Begin Actor Interface
@@ -216,20 +212,26 @@ public:
 		return AttributeSet->GetStrength();
 	}
 
-	UFUNCTION(BlueprintPure = false)
-	FORCEINLINE void ModifyHealth(const EGameplayModOp::Type Modification, const float Magnitude) const
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void ModifyAttribute(const FGameplayAttribute& Attribute, const EGameplayModOp::Type Modification, const float Magnitude)
+	{
+		AbilitySystemComponent->ApplyModToAttribute(Attribute, Modification, Magnitude);
+	}
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void ModifyHealth(const EGameplayModOp::Type Modification, const float Magnitude)
 	{
 		AbilitySystemComponent->ApplyModToAttribute(UKKAttributeSet::GetHealthAttribute(), Modification, Magnitude);
 	}
 
-	UFUNCTION(BlueprintPure = false)
-	FORCEINLINE void ModifyMana(const EGameplayModOp::Type Modification, const float Magnitude) const
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void ModifyMana(const EGameplayModOp::Type Modification, const float Magnitude)
 	{
 		AbilitySystemComponent->ApplyModToAttribute(UKKAttributeSet::GetManaAttribute(), Modification, Magnitude);
 	}
 
-	UFUNCTION(BlueprintPure = false)
-	FORCEINLINE void ModifyDefence(const EGameplayModOp::Type Modification, const float Magnitude) const
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void ModifyDefence(const EGameplayModOp::Type Modification, const float Magnitude)
 	{
 		AbilitySystemComponent->ApplyModToAttribute(UKKAttributeSet::GetDefenceAttribute(), Modification, Magnitude);
 	}

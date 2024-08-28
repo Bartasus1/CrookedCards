@@ -4,20 +4,17 @@
 #include "KKGameplayAbility.h"
 
 #include "Kismet/KismetSystemLibrary.h"
+
 #include "KrzyweKarty2/Characters/KKCharacter.h"
 #include "KrzyweKarty2/Core/KKGameState.h"
+#include "KrzyweKarty2/Core/KKPlayerState.h"
 #include "KrzyweKarty2/GameBoard/CharacterSlot.h"
 
 bool UKKGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
 	if(const AKKCharacter* Character = Cast<AKKCharacter>(ActorInfo->AvatarActor.Get()))
 	{
-		if(bRequireCharacterOnTheBoard && !Character->IsCharacterOnTheBoard())
-		{
-			return false;
-		}
-	
-		if(Character->CharacterActions >= AbilityActionWeight)
+		if(!Character->PlayerState->bIsMyTurn || Character->CharacterActions >= AbilityActionWeight)
 		{
 			return false;
 		}
@@ -51,6 +48,10 @@ void UKKGameplayAbility::CommitExecute(const FGameplayAbilitySpecHandle Handle, 
 
 	// todo: uncomment to apply action weight after action execution
 	//SourceCharacter->CharacterActions = AbilityActionWeight;
+	if(ActorInfo->IsNetAuthority())
+	{
+		GameState->MarkCharacterUsedInRound(SourceCharacter);
+	}
 }
 
 void UKKGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)

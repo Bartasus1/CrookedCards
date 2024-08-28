@@ -63,14 +63,12 @@ void AKKCharacter::Target_OnAttackEnd_Implementation(AKKCharacter* Attacker, con
 
 void AKKCharacter::TryActivateAbility_Implementation(uint8 AbilityIndex)
 {
-	if(PlayerState->bIsUsingAbility)
+	if(PlayerState->bIsUsingAbility || !CharacterAbilityHandles.IsValidIndex(AbilityIndex))
 	{
 		return;
 	}
 
-	PlayerState->bIsUsingAbility = true;
-
-	AbilitySystemComponent->TryActivateAbility(CharacterAbilityHandles[AbilityIndex]);
+	PlayerState->bIsUsingAbility = AbilitySystemComponent->TryActivateAbility(CharacterAbilityHandles[AbilityIndex]);
 }
 
 void AKKCharacter::CommitAbility_Implementation(uint8 AbilityIndex)
@@ -79,7 +77,7 @@ void AKKCharacter::CommitAbility_Implementation(uint8 AbilityIndex)
 	{
 		const float AbilityCost = CharacterDataAsset->ActiveAbilities[AbilityIndex].AbilityCost;
 
-		ModifyHealth(EGameplayModOp::Additive, -AbilityCost);
+		ModifyMana(EGameplayModOp::Additive, -AbilityCost);
 	}
 }
 
@@ -223,12 +221,14 @@ void AKKCharacter::SetPlayerState(AKKPlayerState* NewPlayerState) // Server
 	PlayerState = NewPlayerState;
 	GetAbilitySystemComponent()->InitAbilityActorInfo(PlayerState, this);
 
-	for (uint8 i = 0; i < CharacterDataAsset->ActiveAbilities.Num(); i++) // give character ability with different levels and store a handle to it
+	if(CharacterDataAsset->CharacterAbilityClass)
 	{
-		FGameplayAbilitySpecHandle SpecHandle = AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(CharacterDataAsset->CharacterAbilityClass, i));
-		CharacterAbilityHandles.EmplaceAt(i, SpecHandle);
+		for (uint8 i = 0; i < CharacterDataAsset->ActiveAbilities.Num(); i++) // give character ability with different levels and store a handle to it
+		{
+			FGameplayAbilitySpecHandle SpecHandle = AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(CharacterDataAsset->CharacterAbilityClass, i));
+			CharacterAbilityHandles.EmplaceAt(i, SpecHandle);
+		}
 	}
-	
 }
 
 // CHARACTER WIDGET UPDATES //

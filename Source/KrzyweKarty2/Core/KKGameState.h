@@ -6,6 +6,7 @@
 #include "GameFramework/GameStateBase.h"
 #include "KKGameState.generated.h"
 
+class URoundManager;
 class AKKPlayerState;
 class AKKGameBoard;
 class AKKCharacter;
@@ -34,21 +35,18 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void MarkCharacterUsedInRound(AKKCharacter* Character);
-	
-	UFUNCTION(Server, Reliable)
-	void ChangeTurn();
+
+	UFUNCTION(BlueprintCallable)
+	URoundManager* GetRoundManager() const;
 
 protected:
+
+	virtual void AddPlayerState(APlayerState* PlayerState) override;
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	UPROPERTY(VisibleAnywhere)
-	TMap<int32, AKKCharacter*> RegisteredCharacters; // characters self-register at each own BeginPlay - that means it happens on Client as well
-
-	UPROPERTY(VisibleAnywhere, Replicated)
-	TArray<AKKCharacter*> CharactersUsedInRound;
-
-	UPROPERTY(VisibleAnywhere, Replicated)
-	bool bFirstPlayerTurn = true;
+	TMap<int32, AKKCharacter*> RegisteredCharacters; // characters self-register at each own BeginPlay - that means it happens on Client as well (can't make it server-side, bcuz od TMap)
 
 	UPROPERTY(BlueprintAssignable)
 	FOnWinnerDecided OnWinnerDecided;
@@ -57,6 +55,9 @@ private:
 	
 	UPROPERTY(BlueprintReadOnly, Replicated, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<AKKGameBoard> GameBoard;
+
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"), VisibleAnywhere)
+	TObjectPtr<URoundManager> RoundManager;
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing="OnRep_Winner", meta=(AllowPrivateAccess="true"))
 	AKKPlayerState* Winner;
