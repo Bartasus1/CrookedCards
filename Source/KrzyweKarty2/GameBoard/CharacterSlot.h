@@ -28,10 +28,10 @@ public:
 	void RemoveCharacterFromSlot();
 
 	UFUNCTION(BlueprintCallable)
-	bool HasCharacterAtSlot() const;
+	FORCEINLINE bool HasCharacterAtSlot() const;
 
 	UFUNCTION(BlueprintCallable)
-	AKKCharacter* GetCharacterAtSlot();
+	AKKCharacter* GetCharacterAtSlot() const;
 
 	// SLOT LOCAL STATUS //
 	UFUNCTION(BlueprintCallable)

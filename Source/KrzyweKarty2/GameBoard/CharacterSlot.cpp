@@ -37,7 +37,6 @@ void ACharacterSlot::AssignCharacterToSlot(AKKCharacter* Character)
 
 	Character->OnCharacterDeath.AddDynamic(this, &ACharacterSlot::RemoveCharacterFromSlot);
 	
-	//Character->SetActorRotation((GetActorForwardVector() * Character->Direction).Rotation());
 	MoveCharacter(Character);
 }
 
@@ -56,21 +55,17 @@ bool ACharacterSlot::HasCharacterAtSlot() const
 	return CharacterInSlotUniqueID != 0;
 }
 
-AKKCharacter* ACharacterSlot::GetCharacterAtSlot()
+AKKCharacter* ACharacterSlot::GetCharacterAtSlot() const
 {
-	AKKCharacter* Character = nullptr;
-	
-	if(CharacterInSlotUniqueID == 0)
+	if(HasCharacterAtSlot())
 	{
-		return Character;
-	}
-	
-	if(AKKGameState* GameState = GetWorld()->GetGameState<AKKGameState>())
-	{
-		Character = GameState->GetCharacterByUniqueID(CharacterInSlotUniqueID);
+		if(AKKGameState* GameState = GetWorld()->GetGameState<AKKGameState>())
+		{
+			return GameState->GetCharacterByUniqueID(CharacterInSlotUniqueID);
+		}
 	}
 
-	return Character;
+	return nullptr;
 }
 
 void ACharacterSlot::SetLocalStatus(UCharacterSlotStatus* NewLocalStatus)

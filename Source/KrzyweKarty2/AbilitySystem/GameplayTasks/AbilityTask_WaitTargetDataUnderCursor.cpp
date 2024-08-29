@@ -31,6 +31,13 @@ void UAbilityTask_WaitTargetDataUnderCursor::Activate()
 	}
 }
 
+void UAbilityTask_WaitTargetDataUnderCursor::OnDestroy(bool bInOwnerFinished)
+{
+	PlayerController->ToggleConfirmationState(false);
+	
+	Super::OnDestroy(bInOwnerFinished);
+}
+
 void UAbilityTask_WaitTargetDataUnderCursor::ConfirmTargeting() const
 {
 	FHitResult HitResult; 

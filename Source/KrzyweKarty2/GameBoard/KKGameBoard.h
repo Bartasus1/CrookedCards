@@ -15,8 +15,6 @@ struct FRelativeDirection;
 class USpawnIndicator;
 class AKKCharacter;
 
-
-
 UCLASS()
 class KRZYWEKARTY2_API AKKGameBoard : public AActor
 {
@@ -79,8 +77,6 @@ protected:
 	
 	ACharacterSlot* GetBaseSlotByPlayerID(uint8 BaseIndex);
 private:
-	const uint8 SizeVertical = 5;
-	const uint8 SizeHorizontal = 4;
 
 	UPROPERTY(Replicated)
 	uint8 SlotCounter = 0;

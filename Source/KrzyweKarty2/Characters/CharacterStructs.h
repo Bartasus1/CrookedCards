@@ -1,4 +1,7 @@
 ﻿#pragma once
+#include "AbilitySystemComponent.h"
+#include "KrzyweKarty2/AbilitySystem/Attributes/KKAttributeSet.h"
+
 #include "CharacterStructs.generated.h"
 
 class AAbilityActor;
@@ -51,7 +54,27 @@ public:
 	uint8 AttackLevel = 0; // applies when AttackType is Ability
 };
 
+USTRUCT(BlueprintType)
+struct FAbilityCost
+{
+	GENERATED_BODY()
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FGameplayAttribute AbilityCostAttribute = UKKAttributeSet::GetManaAttribute();
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int32 AbilityCost = 0;
+
+	bool CheckIfCanAfford(const UAbilitySystemComponent* AbilitySystemComponent) const
+	{
+		return AbilitySystemComponent->GetNumericAttribute(AbilityCostAttribute) >= AbilityCost;
+	}
+
+	void CommitAbility(UAbilitySystemComponent* AbilitySystemComponent) const
+	{
+		AbilitySystemComponent->ApplyModToAttribute(AbilityCostAttribute, EGameplayModOp::Additive, -AbilityCost);
+	}
+};
 
 USTRUCT(BlueprintType)
 struct FAbilityDescription
@@ -59,16 +82,16 @@ struct FAbilityDescription
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UTexture2D> AbilityImage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText AbilityName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText AbilityDescription;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 AbilityCost;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSoftObjectPtr<UTexture2D> AbilityImage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ShowOnlyInnerProperties))
+	FAbilityCost AbilityCost;
 };
 
 USTRUCT(BlueprintType)

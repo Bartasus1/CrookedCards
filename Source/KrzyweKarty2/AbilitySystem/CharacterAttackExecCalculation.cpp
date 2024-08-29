@@ -4,6 +4,8 @@
 #include "CharacterAttackExecCalculation.h"
 #include "AbilitySystemComponent.h"
 
+#include "Abilities/KKGameplayAbility.h"
+
 #include "Attributes/KKAttributeSet.h"
 
 #include "KrzyweKarty2/Characters/KKCharacter.h"
@@ -31,7 +33,7 @@ void UCharacterAttackExecCalculation::Execute_Implementation(const FGameplayEffe
 	}
 	
 	UAttackInfo* AttackInfo = NewObject<UAttackInfo>();
-	AttackInfo->AttackType = SourceCharacter->AttackType; // no other way to pass info to ExecCalculation :(
+	AttackInfo->AttackType = SourceCharacter->AttackType; // no other way to pass info to ExecCalculation :( todo: maybe try with GameplayTags instead
 	
 	if(!TargetCharacter->Target_CanBeAttacked(SourceCharacter, AttackInfo)) // target can block attacks, so no point going further
 	{

@@ -11,13 +11,13 @@
 
 #include "Engine/TextureRenderTarget2D.h"
 
-#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 #include "KrzyweKarty2/KKCharacterDeveloperSettings.h"
 #include "KrzyweKarty2/AbilitySystem/Abilities/KKGameplayAbility.h"
 #include "KrzyweKarty2/Core/KKPlayerState.h"
 #include "KrzyweKarty2/Core/KKGameState.h"
+#include "KrzyweKarty2/GameBoard/CharacterSlot.h"
 #include "KrzyweKarty2/UI/CharacterWidget.h"
 #include "Net/UnrealNetwork.h"
 #include "Slate/WidgetRenderer.h"
@@ -71,14 +71,16 @@ void AKKCharacter::TryActivateAbility_Implementation(uint8 AbilityIndex)
 	PlayerState->bIsUsingAbility = AbilitySystemComponent->TryActivateAbility(CharacterAbilityHandles[AbilityIndex]);
 }
 
-void AKKCharacter::CommitAbility_Implementation(uint8 AbilityIndex)
+FAbilityCost AKKCharacter::GetAbilityCost(uint8 AbilityIndex) const
 {
+	FAbilityCost AbilityCost;
+	
 	if(CharacterDataAsset->ActiveAbilities.IsValidIndex(AbilityIndex))
 	{
-		const float AbilityCost = CharacterDataAsset->ActiveAbilities[AbilityIndex].AbilityCost;
-
-		ModifyMana(EGameplayModOp::Additive, -AbilityCost);
+		 AbilityCost = CharacterDataAsset->ActiveAbilities[AbilityIndex].AbilityCost;
 	}
+
+	return AbilityCost;
 }
 
 void AKKCharacter::BeginPlay()
@@ -102,13 +104,7 @@ void AKKCharacter::BeginPlay()
 
 	AbilitySystemComponent->AbilityFailedCallbacks.AddUObject(this, &AKKCharacter::PrintAbilityFailure);
 
-	if(APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0)) // rotate towards local player
-	{
-		if(PlayerController->IsLocalPlayerController() && GetComponentByClass<UBaseCharacterComponent>() == nullptr)
-		{
-			SetActorRotation(PlayerController->GetControlRotation());
-		}
-	}
+	RotateToLocalPlayer();
 }
 
 void AKKCharacter::Tick(float DeltaSeconds)
@@ -200,9 +196,28 @@ void AKKCharacter::CancelAllAbilities()
 	AbilitySystemComponent->CancelAllAbilities();
 }
 
+void AKKCharacter::SetCharacterSlotsStatus_Implementation(const TArray<ACharacterSlot*>& ActionSlots, UCharacterSlotStatus* SlotStatus)
+{
+	for (ACharacterSlot* CharacterSlot : ActionSlots)
+	{
+		CharacterSlot->SetLocalStatus(SlotStatus);
+	}
+}
+
 AKKGameBoard* AKKCharacter::GetGameBoard() const
 {
 	return GetWorld()->GetGameState<AKKGameState>()->GetGameBoard();
+}
+
+void AKKCharacter::RotateToLocalPlayer()
+{
+	if(const APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController())
+	{
+		if(PlayerController->IsLocalPlayerController() && GetComponentByClass<UBaseCharacterComponent>() == nullptr)
+		{
+			SetActorRotation(PlayerController->GetControlRotation());
+		}
+	}
 }
 
 // ABILITY SYSTEM COMPONENT INITIALIZATION //

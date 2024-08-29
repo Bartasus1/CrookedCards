@@ -5,23 +5,23 @@
 #include "KrzyweKarty2/Characters/CharacterStructs.h"
 #include "Net/UnrealNetwork.h"
 
-UKKAttributeSet::UKKAttributeSet()
+UKKAttributeSet::UKKAttributeSet(): MaxCharacterStats(nullptr)
 {
 }
 
 void UKKAttributeSet::InitFromCharacterStatistics(const FCharacterStats& CharacterStats)
 {
-	MaxCharacterStats = CharacterStats;
+	MaxCharacterStats = &CharacterStats;
 	
-	InitHealth(MaxCharacterStats.Health);
-	InitMana(MaxCharacterStats.Mana);
-	InitDefence(MaxCharacterStats.Defence);
-	InitStrength(MaxCharacterStats.Strength);
+	InitHealth(MaxCharacterStats->Health);
+	InitMana(MaxCharacterStats->Mana);
+	InitDefence(MaxCharacterStats->Defence);
+	InitStrength(MaxCharacterStats->Strength);
 	
-	AttributeToMaxStatMap.Add(GetHealthAttribute(), MaxCharacterStats.Health);
-	AttributeToMaxStatMap.Add(GetManaAttribute(), MaxCharacterStats.Mana);
-	AttributeToMaxStatMap.Add(GetDefenceAttribute(), MaxCharacterStats.Defence);
-	AttributeToMaxStatMap.Add(GetStrengthAttribute(), MaxCharacterStats.Strength);
+	AttributeToMaxStatMap.Add(GetHealthAttribute(), MaxCharacterStats->Health);
+	AttributeToMaxStatMap.Add(GetManaAttribute(), MaxCharacterStats->Mana);
+	AttributeToMaxStatMap.Add(GetDefenceAttribute(), MaxCharacterStats->Defence);
+	AttributeToMaxStatMap.Add(GetStrengthAttribute(), MaxCharacterStats->Strength);
 }
 
 int32 UKKAttributeSet::GetMaxValueForAttribute(const FGameplayAttribute& GameplayAttribute) const
@@ -40,19 +40,19 @@ void UKKAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 
 	if(Attribute == GetHealthAttribute())
 	{
-		NewValue = FMath::Clamp<float>(NewValue, 0.f, MaxCharacterStats.Health);
+		NewValue = FMath::Clamp<float>(NewValue, 0.f, MaxCharacterStats->Health);
 	}
 	if(Attribute == GetManaAttribute())
 	{
-		NewValue = FMath::Clamp<float>(NewValue, 0.f, MaxCharacterStats.Mana);
+		NewValue = FMath::Clamp<float>(NewValue, 0.f, MaxCharacterStats->Mana);
 	}
 	if(Attribute == GetDefenceAttribute())
 	{
-		NewValue = FMath::Clamp<float>(NewValue, 0.f, MaxCharacterStats.Defence);
+		NewValue = FMath::Clamp<float>(NewValue, 0.f, MaxCharacterStats->Defence);
 	}
 	if(Attribute == GetStrengthAttribute())
 	{
-		NewValue = FMath::Clamp<float>(NewValue, 0.f, MaxCharacterStats.Strength);
+		NewValue = FMath::Clamp<float>(NewValue, 0.f, MaxCharacterStats->Strength);
 	}
 }
 

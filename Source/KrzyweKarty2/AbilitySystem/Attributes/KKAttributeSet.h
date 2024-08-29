@@ -6,8 +6,6 @@
 #include "AbilitySystemComponent.h"
 #include "AttributeSet.h"
 
-#include "KrzyweKarty2/Characters/CharacterStructs.h"
-
 #include "KKAttributeSet.generated.h"
 
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
@@ -64,7 +62,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 private:
-	FCharacterStats MaxCharacterStats;
+	const FCharacterStats* MaxCharacterStats;
 	
 	TMap<FGameplayAttribute, int32> AttributeToMaxStatMap;
 };

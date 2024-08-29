@@ -4,10 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
+#include "CharacterDataAsset.h"
+
 #include "GameFramework/Actor.h"
 #include "KrzyweKarty2/AbilitySystem/Attributes/KKAttributeSet.h"
 #include "KKCharacter.generated.h"
 
+class UCharacterSlotStatus;
+class ACharacterSlot;
 class AKKGameBoard;
 class AKKPlayerState;
 class UCharacterWidget;
@@ -105,11 +109,8 @@ public:
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void TryActivateAbility(uint8 AbilityIndex);
 	
-	UFUNCTION(BlueprintNativeEvent)
-	void CommitAbility(uint8 AbilityIndex);
+	FAbilityCost GetAbilityCost(uint8 AbilityIndex) const;
 
-
-	
 protected:
 	// ~Begin Actor Interface
 	virtual void BeginPlay() override;
@@ -133,6 +134,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CancelAllAbilities();
 
+	UFUNCTION(Client, Reliable, BlueprintCallable)
+	void SetCharacterSlotsStatus(const TArray<ACharacterSlot*>& ActionSlots, UCharacterSlotStatus* SlotStatus);
+
 protected:
 
 	UFUNCTION(BlueprintCallable)
@@ -149,6 +153,9 @@ public:
 	void OnRep_PlayerState();
 
 	void SetPlayerState(AKKPlayerState* NewPlayerState);
+
+	UFUNCTION(BlueprintCallable)
+	void RotateToLocalPlayer();
 	
 
 private:
@@ -176,6 +183,11 @@ public:
 	bool IsCharacterOnTheBoard() const
 	{
 		return CharacterSlotID != -1;
+	}
+
+	bool IsRangedCharacter() const
+	{
+		return CharacterDataAsset->CharacterStats.MaxAttackRange > 1;
 	}
 	
 	UKKAttributeSet* GetAttributeSet() const

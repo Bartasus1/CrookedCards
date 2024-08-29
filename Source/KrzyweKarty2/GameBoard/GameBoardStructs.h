@@ -3,10 +3,28 @@
 
 class ACharacterSlot;
 
+namespace GameBoard
+{
+	const uint8 SizeVertical = 5;
+	const uint8 SizeHorizontal = 4;
+}
+
 USTRUCT(Blueprintable, BlueprintType)
 struct KRZYWEKARTY2_API FBoardCoordinate
 {
 	GENERATED_BODY()
+
+	FBoardCoordinate() {}
+	FBoardCoordinate(uint8 InRow, uint8 InColumn)
+	{
+		if(InRow == 0 || InRow == GameBoard::SizeVertical + 1) // if board coordinate is a base slot, it's column should be 0
+		{
+			InColumn = 0;
+		}
+
+		Row = InRow;
+		Column = InColumn;
+	}
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	uint8 Row = 0;

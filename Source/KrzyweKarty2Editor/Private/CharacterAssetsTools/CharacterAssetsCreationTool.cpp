@@ -3,6 +3,7 @@
 #include "CharacterAssetsTools/CharacterAssetsCreationTool.h"
 #include "AssetToolsModule.h"
 #include "ContentBrowserModule.h"
+#include "FileHelpers.h"
 #include "GameplayAbilitiesBlueprintFactory.h"
 #include "GameplayAbilityBlueprint.h"
 #include "IAssetTools.h"
@@ -69,6 +70,19 @@ void FCharacterAssetsCreationTool::CreateCharacterAssets(TArray<FString> Selecte
 				FKismetEditorUtilities::CompileBlueprint(CharacterBlueprint, EBlueprintCompileOptions::None, &CompilerResult);
 			}
 		}
+
+		TArray<UPackage*> Packages = {
+			CharacterDataAsset->GetPackage(),
+			CharacterAbility->GetPackage(),
+			CharacterBlueprint->GetPackage()
+		};
+
+		for (UPackage* Package : Packages)
+		{
+			Package->MarkPackageDirty();
+		}
+
+		UEditorLoadingAndSavingUtils::SavePackages(Packages, false);
 	}
 }
 

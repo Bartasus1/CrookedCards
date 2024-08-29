@@ -6,6 +6,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "KKGameplayAbility.generated.h"
 
+class UCharacterSlotStatus;
 class ACharacterSlot;
 class AKKGameBoard;
 class AKKGameState;
@@ -19,6 +20,8 @@ class KRZYWEKARTY2_API UKKGameplayAbility : public UGameplayAbility
 	GENERATED_BODY()
 
 public:
+
+	UKKGameplayAbility();
 
 	UPROPERTY(EditDefaultsOnly)
 	uint8 AbilityActionWeight = -1;
@@ -39,6 +42,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, DisplayName="Activate Ability With TargetData")
 	void K2_ActivateAbilityWithTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle, FGameplayTag ApplicationTag);
 
+	UFUNCTION(BlueprintImplementableEvent, DisplayName="Activate Server Ability")
+	void K2_ActivateServerAbility();
+	
 	UFUNCTION(BlueprintCallable)
 	virtual void NotifyTargetDataReady(const FGameplayAbilityTargetDataHandle& TargetDataHandle, FGameplayTag ApplicationTag);
 

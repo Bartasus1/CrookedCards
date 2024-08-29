@@ -10,6 +10,12 @@
 #include "KrzyweKarty2/Core/KKPlayerState.h"
 #include "KrzyweKarty2/GameBoard/CharacterSlot.h"
 
+UKKGameplayAbility::UKKGameplayAbility(): SourceCharacter(nullptr), GameState(nullptr), GameBoard(nullptr)
+{
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
+}
+
 bool UKKGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
 	if(const AKKCharacter* Character = Cast<AKKCharacter>(ActorInfo->AvatarActor.Get()))
@@ -20,7 +26,7 @@ bool UKKGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Han
 		}
 	}
 	
-	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);;
+	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 }
 
 void UKKGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -36,18 +42,20 @@ void UKKGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	{
 		K2_ActivateLocalPlayerAbility();
 	}
-	else if(ActorInfo->IsNetAuthority())
+	if(ActorInfo->IsNetAuthority())
 	{
 		ActivateServerAbility(Handle, ActorInfo, ActivationInfo);
+
+		K2_ActivateServerAbility();
 	}
 }
 
 void UKKGameplayAbility::CommitExecute(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::CommitExecute(Handle, ActorInfo, ActivationInfo);
-
-	// todo: uncomment to apply action weight after action execution
+	
 	//SourceCharacter->CharacterActions = AbilityActionWeight;
+	
 	if(ActorInfo->IsNetAuthority())
 	{
 		GameState->MarkCharacterUsedInRound(SourceCharacter);
@@ -62,14 +70,9 @@ void UKKGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 		ASC->ConsumeClientReplicatedTargetData(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey());
 	}
 	
-	if(ActorInfo->IsLocallyControlled())
+	if(ActorInfo->IsNetAuthority())
 	{
-		for (ACharacterSlot* CharacterSlot : ActionSlots)
-		{
-			//UKismetSystemLibrary::PrintString(this, CharacterSlot->GetName());
-			CharacterSlot->SetLocalStatus(nullptr);
-		}
-
+		SourceCharacter->SetCharacterSlotsStatus(ActionSlots, nullptr);
 		ActionSlots.Empty();
 	}
 

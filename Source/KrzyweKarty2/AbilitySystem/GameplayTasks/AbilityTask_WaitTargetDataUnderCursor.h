@@ -25,6 +25,7 @@ public:
 
 
 	virtual void Activate() override;
+	virtual void OnDestroy(bool bInOwnerFinished) override;
 protected:
 
 	// INPUT
