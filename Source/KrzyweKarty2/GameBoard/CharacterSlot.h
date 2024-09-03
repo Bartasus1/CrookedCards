@@ -35,7 +35,7 @@ public:
 
 	// SLOT LOCAL STATUS //
 	UFUNCTION(BlueprintCallable)
-	void SetLocalStatus(UCharacterSlotStatus* NewLocalStatus);
+	void SetLocalStatus(const UCharacterSlotStatus* NewLocalStatus);
 
 	UFUNCTION(BlueprintPure)
 	const FGameplayTag& GetLocalStatusTag() const;
@@ -61,7 +61,7 @@ public:
 	
 protected:
 	UPROPERTY(BlueprintReadWrite)
-	TObjectPtr<UCharacterSlotStatus> LocalStatus;
+	TObjectPtr<const UCharacterSlotStatus> LocalStatus;
 
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UMaterialInstanceDynamic> MaterialInstanceDynamic;

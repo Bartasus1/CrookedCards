@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+
+#include "KrzyweKarty2/GameBoard/CharacterSlot.h"
+
 #include "KKGameplayAbility.generated.h"
 
 class UCharacterSlotStatus;
@@ -49,7 +52,12 @@ public:
 	virtual void NotifyTargetDataReady(const FGameplayAbilityTargetDataHandle& TargetDataHandle, FGameplayTag ApplicationTag);
 
 	virtual void ActivateServerAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo);
-	
+
+	UFUNCTION(Client, Reliable, BlueprintCallable)
+	virtual void ApplyStatusToCharacterSlot(ACharacterSlot* CharacterSlot, UCharacterSlotStatus* SlotStatus);
+
+	UFUNCTION(Client, Reliable, BlueprintCallable)
+	virtual void ApplyStatusToCharacterSlots(const TArray<ACharacterSlot*>& CharacterSlots, UCharacterSlotStatus* SlotStatus);
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	AKKCharacter* SourceCharacter;

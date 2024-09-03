@@ -12,8 +12,9 @@
 
 UKKGameplayAbility::UKKGameplayAbility(): SourceCharacter(nullptr), GameState(nullptr), GameBoard(nullptr)
 {
+	ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 }
 
 bool UKKGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
@@ -41,6 +42,7 @@ void UKKGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	if(ActorInfo->IsLocallyControlled())
 	{
 		K2_ActivateLocalPlayerAbility();
+		
 	}
 	if(ActorInfo->IsNetAuthority())
 	{
@@ -72,7 +74,7 @@ void UKKGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 	
 	if(ActorInfo->IsNetAuthority())
 	{
-		SourceCharacter->SetCharacterSlotsStatus(ActionSlots, nullptr);
+		ApplyStatusToCharacterSlots(ActionSlots, nullptr);
 		ActionSlots.Empty();
 	}
 
@@ -99,4 +101,17 @@ void UKKGameplayAbility::ActivateServerAbility(const FGameplayAbilitySpecHandle 
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 	OnNotifyTargetDataReady = ASC->AbilityTargetDataSetDelegate(Handle, ActivationInfo.GetActivationPredictionKey()).AddUObject(this, &UKKGameplayAbility::NotifyTargetDataReady);
+}
+
+void UKKGameplayAbility::ApplyStatusToCharacterSlot_Implementation(ACharacterSlot* CharacterSlot, UCharacterSlotStatus* SlotStatus)
+{
+	CharacterSlot->SetLocalStatus(SlotStatus);
+}
+
+void UKKGameplayAbility::ApplyStatusToCharacterSlots_Implementation(const TArray<ACharacterSlot*>& CharacterSlots, UCharacterSlotStatus* SlotStatus)
+{
+	for (ACharacterSlot* CharacterSlot : CharacterSlots)
+	{
+		CharacterSlot->SetLocalStatus(SlotStatus);
+	}
 }

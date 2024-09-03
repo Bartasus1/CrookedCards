@@ -134,9 +134,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CancelAllAbilities();
 
-	UFUNCTION(Client, Reliable, BlueprintCallable)
-	void SetCharacterSlotsStatus(const TArray<ACharacterSlot*>& ActionSlots, UCharacterSlotStatus* SlotStatus);
-
 protected:
 
 	UFUNCTION(BlueprintCallable)

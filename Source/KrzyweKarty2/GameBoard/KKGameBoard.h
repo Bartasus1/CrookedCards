@@ -27,7 +27,7 @@ public:
 	ACharacterSlot* GetCharacterSlotByID(uint8 SlotID, ESlotSelectionPolicy SelectionPolicy = SSP_NoPolicy) const;
 
 	UFUNCTION(BlueprintPure = false)
-	ACharacterSlot* GetCharacterSlotByRelativeDirection(uint8 SourceSlotID, FRelativeDirection RelativeDirection, ESlotSelectionPolicy SelectionPolicy = SSP_NoPolicy, bool bIncludeBaseSlots = false) const;
+	ACharacterSlot* GetCharacterSlotByRelativeDirection(uint8 SourceSlotID, FRelativeDirection RelativeDirection, ESlotSelectionPolicy SelectionPolicy = SSP_NoPolicy) const;
 
 	UFUNCTION(BlueprintPure = false)
 	ACharacterSlot* GetCharacterSlotByCoordinates(FBoardCoordinate SlotCoordinates, ESlotSelectionPolicy SelectionPolicy = SSP_NoPolicy) const;
@@ -65,8 +65,11 @@ private:
 	bool AreCoordinatesValid(FBoardCoordinate BoardCoordinate) const;
 	bool IsBaseInRange(FBoardCoordinate SourceCoordinate) const;
 
-	uint8 GetClosestBaseSlotID(uint8 SourceID) const; // use only when sourceID is in the first row from the base (1-4 and 17-20)
+public:
+	ACharacterSlot* GetBaseSlotInRange(uint8 SourceSlotID) const;
+	ACharacterSlot* GetBaseSlotInRange(FBoardCoordinate SourceCoordinate) const;
 
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -75,7 +78,7 @@ protected:
 	void CreateBaseSlot(uint8 BaseIndex);
 	void CreateGameBoard();
 	
-	ACharacterSlot* GetBaseSlotByPlayerID(uint8 BaseIndex);
+	ACharacterSlot* GetBaseSlotByBaseIndex(uint8 BaseIndex) const;
 private:
 
 	UPROPERTY(Replicated)

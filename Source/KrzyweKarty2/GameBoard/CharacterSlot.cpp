@@ -68,7 +68,7 @@ AKKCharacter* ACharacterSlot::GetCharacterAtSlot() const
 	return nullptr;
 }
 
-void ACharacterSlot::SetLocalStatus(UCharacterSlotStatus* NewLocalStatus)
+void ACharacterSlot::SetLocalStatus(const UCharacterSlotStatus* NewLocalStatus)
 {
 	LocalStatus = NewLocalStatus;
 	

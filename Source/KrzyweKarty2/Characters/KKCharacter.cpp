@@ -104,7 +104,7 @@ void AKKCharacter::BeginPlay()
 
 	AbilitySystemComponent->AbilityFailedCallbacks.AddUObject(this, &AKKCharacter::PrintAbilityFailure);
 
-	RotateToLocalPlayer();
+	
 }
 
 void AKKCharacter::Tick(float DeltaSeconds)
@@ -112,6 +112,7 @@ void AKKCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	UpdateCharacterWidgetRender(DeltaSeconds);
+	RotateToLocalPlayer(); // this shouldn't be on a tick, but weird bug makes character rotate 180 on client, when added to the game board 
 }
 
 void AKKCharacter::OnConstruction(const FTransform& Transform)
@@ -194,14 +195,6 @@ TArray<FRelativeDirection> AKKCharacter::GetDirectionsForDefaultAttack_Implement
 void AKKCharacter::CancelAllAbilities()
 {
 	AbilitySystemComponent->CancelAllAbilities();
-}
-
-void AKKCharacter::SetCharacterSlotsStatus_Implementation(const TArray<ACharacterSlot*>& ActionSlots, UCharacterSlotStatus* SlotStatus)
-{
-	for (ACharacterSlot* CharacterSlot : ActionSlots)
-	{
-		CharacterSlot->SetLocalStatus(SlotStatus);
-	}
 }
 
 AKKGameBoard* AKKCharacter::GetGameBoard() const

@@ -4,10 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "InstancedStruct.h"
 
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "KKBlueprintFunctionLibrary.generated.h"
 
+struct FQueryTest;
+class UGameBoardQuery;
+struct FRelativeDirection;
+class AKKCharacter;
+class AKKGameBoard;
+class ACharacterSlot;
 /**
  * 
  */
@@ -19,4 +26,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static FText GetFractionNameByTag(const FGameplayTag& FractionTag);
+
+	UFUNCTION(BlueprintCallable, meta=(WorldContext="WorldContextObject"))
+	static AKKGameBoard* GetGameBoard(UObject* WorldContextObject);
+	
+	UFUNCTION(BlueprintCallable)
+	static TArray<ACharacterSlot*> QueryCharacterSlots(AKKCharacter* Character, FInstancedStruct Query);
 };

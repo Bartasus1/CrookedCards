@@ -121,8 +121,32 @@ struct FRelativeDirection
 		return NormalizedDirection;
 	}
 
+	static TMap<FRelativeDirection, TArray<FRelativeDirection>> SortDirections(const TArray<FRelativeDirection>& InRelativeDirections)
+	{
+		TMap<FRelativeDirection, TArray<FRelativeDirection>> SortedDirections;
+
+		for (const FRelativeDirection& Direction : InRelativeDirections)
+		{
+			FRelativeDirection NormalizedDirection = Direction.Normalize();
+			
+			SortedDirections.FindOrAdd(NormalizedDirection).Add((Direction));
+		}
+
+		return SortedDirections;
+	}
+
 	bool operator==(const FRelativeDirection& Other) const
 	{
 		return VerticalDirection == Other.VerticalDirection && HorizontalDirection == Other.HorizontalDirection;
+	}
+
+	bool operator<(const FRelativeDirection& Other) const
+	{
+		return FMath::Abs(VerticalDirection) < FMath::Abs(Other.VerticalDirection) || FMath::Abs(HorizontalDirection) < FMath::Abs(Other.HorizontalDirection);
+	}
+
+	friend uint32 GetTypeHash(const FRelativeDirection& RelativeDirection)
+	{
+		return HashCombine(GetTypeHash(RelativeDirection.VerticalDirection), GetTypeHash(RelativeDirection.HorizontalDirection));
 	}
 };

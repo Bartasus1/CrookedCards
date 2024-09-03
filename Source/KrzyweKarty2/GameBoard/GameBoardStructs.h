@@ -49,7 +49,7 @@ struct FCharacterSlotsRow
 		CharacterSlots.Add(Slot);
 	}
 
-	ACharacterSlot* GetBaseSlot()
+	ACharacterSlot* GetBaseSlot() const
 	{
 		if(bIsBaseRow)
 		{
