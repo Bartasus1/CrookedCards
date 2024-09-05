@@ -30,7 +30,7 @@ ACharacterSlot* AKKGameBoard::GetCharacterSlotByRelativeDirection(uint8 SourceSl
 	const FBoardCoordinate SourceCoordinates = GetBoardCoordinateByID(SourceSlotID);
 	const FBoardCoordinate TargetCoordinates(SourceCoordinates.Row + RelativeDirection.VerticalDirection, SourceCoordinates.Column + RelativeDirection.HorizontalDirection);
 
-	if(AreCoordinatesValid(TargetCoordinates) && GameBoard[TargetCoordinates.Row].bIsBaseRow)
+	if(AreCoordinatesValid(TargetCoordinates) && GameBoard[TargetCoordinates.Row].bIsBaseRow) // there's GetBaseSlotInRange if you want to get the base slot
 	{
 		return nullptr;
 	}
@@ -45,7 +45,7 @@ ACharacterSlot* AKKGameBoard::GetCharacterSlotByCoordinates(FBoardCoordinate Slo
 	
 	if(AreCoordinatesValid(X, Y))
 	{
-		ACharacterSlot* CharacterSlot = GameBoard[X].CharacterSlots[Y];
+		ACharacterSlot* CharacterSlot = GameBoard[X][Y];
 		
 		switch (SelectionPolicy)
 		{

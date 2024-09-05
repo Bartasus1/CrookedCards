@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+#include "KrzyweKarty2/GameBoard/GameBoardStructs.h"
 #include "KKPlayerState.generated.h"
 
 class AKKCharacter;
@@ -25,6 +26,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Replicated, VisibleAnywhere)
 	bool bIsMyTurn = false;
+
+	UPROPERTY(BlueprintReadOnly, Replicated, VisibleAnywhere)
+	FFractionCharacters PlayerFractionCharacters;
 
 protected:
 

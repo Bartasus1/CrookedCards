@@ -36,13 +36,14 @@ public:
 	void MarkCharacterUsed(AKKCharacter* Character);
 
 	void AddPlayerState(AKKPlayerState* PlayerState);
-	
+	bool CheckIfPlayerCanMove(AKKPlayerState* PlayerState) const;
+
 private:
 	uint8 MaxPlayerMovePoints = 3;
 	uint8 PlayerMovePoints = 0;
 
 	TArray<AKKPlayerState*> Players;
-	TArray<AKKCharacter*> Characters;
+	TArray<AKKCharacter*> UsedCharacters;
 
 	void ChangeTurn();
 

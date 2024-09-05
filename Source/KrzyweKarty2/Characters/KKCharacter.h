@@ -10,6 +10,7 @@
 #include "KrzyweKarty2/AbilitySystem/Attributes/KKAttributeSet.h"
 #include "KKCharacter.generated.h"
 
+class UCharacterAction;
 class UCharacterSlotStatus;
 class ACharacterSlot;
 class AKKGameBoard;
@@ -107,9 +108,14 @@ public:
 	// ----------------------------------------------------------
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
-	void TryActivateAbility(uint8 AbilityIndex);
+	void TryActivateCharacterAbility(uint8 AbilityIndex);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool CanActivateCharacterAbility(uint8 AbilityIndex) const;
 	
 	FAbilityCost GetAbilityCost(uint8 AbilityIndex) const;
+
+	
 
 protected:
 	// ~Begin Actor Interface
@@ -122,8 +128,8 @@ public:
 	// ----------------------------------------------------------
 	// CHARACTER ACTION SLOTS
 	// ----------------------------------------------------------
-	UFUNCTION(BlueprintPure)
-	virtual TArray<uint8> GetSlotsForCharacterSpawn() const;
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure)
+	TArray<uint8> GetSlotsForCharacterSpawn() const;
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintPure)
 	TArray<FRelativeDirection> GetDirectionsForMovement() const;
@@ -134,6 +140,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CancelAllAbilities();
 
+	// --------------------------------------------------
+	// CHARACTER ACTIONS
+	// --------------------------------------------------
+
+	UFUNCTION(BlueprintCallable)
+	virtual bool CanExecuteAction(TSubclassOf<UCharacterAction> ActionClass) const;
+
+	UFUNCTION(BlueprintCallable)
+	virtual bool CanCharacterBeUsed() const;
+	
 protected:
 
 	UFUNCTION(BlueprintCallable)
@@ -176,6 +192,11 @@ private:
 	void PrintAbilityFailure(const UGameplayAbility* GameplayAbility, const FGameplayTagContainer& GameplayTags);
 
 public:
+
+	static bool AreInTheSameTeam(const AKKCharacter* A, const AKKCharacter* B)
+	{
+		return A->PlayerState == B->PlayerState;
+	}
 
 	bool IsCharacterOnTheBoard() const
 	{

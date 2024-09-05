@@ -7,6 +7,8 @@
 
 #include "Blueprint/UserWidget.h"
 
+#include "CharacterActions/CharacterAction.h"
+
 #include "Components/BaseCharacterComponent.h"
 
 #include "Engine/TextureRenderTarget2D.h"
@@ -17,7 +19,7 @@
 #include "KrzyweKarty2/AbilitySystem/Abilities/KKGameplayAbility.h"
 #include "KrzyweKarty2/Core/KKPlayerState.h"
 #include "KrzyweKarty2/Core/KKGameState.h"
-#include "KrzyweKarty2/GameBoard/CharacterSlot.h"
+#include "KrzyweKarty2/GameBoard/KKGameBoard.h"
 #include "KrzyweKarty2/UI/CharacterWidget.h"
 #include "Net/UnrealNetwork.h"
 #include "Slate/WidgetRenderer.h"
@@ -61,7 +63,7 @@ void AKKCharacter::Target_OnAttackEnd_Implementation(AKKCharacter* Attacker, con
 }
 
 
-void AKKCharacter::TryActivateAbility_Implementation(uint8 AbilityIndex)
+void AKKCharacter::TryActivateCharacterAbility_Implementation(uint8 AbilityIndex)
 {
 	if(PlayerState->bIsUsingAbility || !CharacterAbilityHandles.IsValidIndex(AbilityIndex))
 	{
@@ -69,6 +71,16 @@ void AKKCharacter::TryActivateAbility_Implementation(uint8 AbilityIndex)
 	}
 
 	PlayerState->bIsUsingAbility = AbilitySystemComponent->TryActivateAbility(CharacterAbilityHandles[AbilityIndex]);
+}
+
+bool AKKCharacter::CanActivateCharacterAbility_Implementation(uint8 AbilityIndex) const
+{
+	if(CharacterAbilityHandles.IsValidIndex(AbilityIndex))
+	{
+		return GetAbilityCost(AbilityIndex).CheckIfCanAfford(AbilitySystemComponent);
+	}
+
+	return false;
 }
 
 FAbilityCost AKKCharacter::GetAbilityCost(uint8 AbilityIndex) const
@@ -145,14 +157,14 @@ void AKKCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(AKKCharacter, PlayerState);
 }
 
-TArray<uint8> AKKCharacter::GetSlotsForCharacterSpawn() const
+TArray<uint8> AKKCharacter::GetSlotsForCharacterSpawn_Implementation() const
 {
 	TArray<uint8> CharacterSlots;
-	const uint8 RowSize = 4;
+	const uint8 RowSize = GameBoard::SizeHorizontal;
 	
 	for(uint8 i = 1; i <= RowSize; i++)
 	{
-		CharacterSlots.Add((Direction == 1) ? i : 21 - i); // 1,2,3,4 or 20,19,18,17
+		CharacterSlots.Add((Direction == 1) ? i : GetGameBoard()->GetTotalMapSize() - i); // 1,2,3,4 or 20,19,18,17
 	}
 	
 	return CharacterSlots;
@@ -195,6 +207,28 @@ TArray<FRelativeDirection> AKKCharacter::GetDirectionsForDefaultAttack_Implement
 void AKKCharacter::CancelAllAbilities()
 {
 	AbilitySystemComponent->CancelAllAbilities();
+}
+
+bool AKKCharacter::CanExecuteAction(const TSubclassOf<UCharacterAction> ActionClass) const
+{
+	const UCharacterAction* CharacterAction = ActionClass->GetDefaultObject<UCharacterAction>();
+	return CharacterAction->CanExecuteAction(this, GetGameBoard());
+}
+
+bool AKKCharacter::CanCharacterBeUsed() const
+{
+	const bool bCanSummon = CanExecuteAction(UCharacterAction_Summon::StaticClass());
+	const bool bCanMove = CanExecuteAction(UCharacterAction_Movement::StaticClass());
+	const bool bCanAttack = CanExecuteAction(UCharacterAction_Attack::StaticClass());
+	const bool bCanUseAnyAbility = CanExecuteAction(UCharacterAction_Ability::StaticClass());
+	
+	// UE_LOG(LogTemp, Warning, TEXT("%s SUMMON QUERY: %s"), *GetName(), *FString(bCanSummon ? "Can Summon" : "CAN'T Summon"))
+	// UE_LOG(LogTemp, Warning, TEXT("%s MOVEMENT QUERY: %s"), *GetName(), *FString(bCanMove ? "Can Move" : "CAN'T Move"))
+	// UE_LOG(LogTemp, Warning, TEXT("%s ATTACK QUERY: %s"), *GetName(), *FString(bCanAttack ? "Can Attack" : "CAN'T Attack"))
+	// UE_LOG(LogTemp, Warning, TEXT("%s FINAL RESULT: %s"), *GetName(), *FString((bCanSummon || bCanMove || bCanAttack) ? "Can Use Character" : "CAN'T Use Character"))
+	// UE_LOG(LogTemp, Warning, TEXT("-------------------------------------------"))
+
+	return bCanSummon || bCanMove || bCanAttack || bCanUseAnyAbility;
 }
 
 AKKGameBoard* AKKCharacter::GetGameBoard() const
@@ -274,10 +308,10 @@ UTextureRenderTarget2D* AKKCharacter::GetWidgetRenderTarget()
 
 void AKKCharacter::PrintAbilityFailure(const UGameplayAbility* GameplayAbility, const FGameplayTagContainer& GameplayTags)
 {
-	UKismetSystemLibrary::PrintString(this, "Ability failed: " + GameplayAbility->GetName());
-	for (const FGameplayTag& Tag : GameplayTags)
-	{
-		UKismetSystemLibrary::PrintString(this, Tag.ToString());
-	}
+	// UKismetSystemLibrary::PrintString(this, "Ability failed: " + GameplayAbility->GetName());
+	// for (const FGameplayTag& Tag : GameplayTags)
+	// {
+	// 	UKismetSystemLibrary::PrintString(this, Tag.ToString());
+	// }
 }
 

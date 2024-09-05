@@ -9,6 +9,7 @@
 
 #include "KKGameplayAbility.generated.h"
 
+class UCharacterAction;
 class UCharacterSlotStatus;
 class ACharacterSlot;
 class AKKGameBoard;
@@ -25,9 +26,9 @@ class KRZYWEKARTY2_API UKKGameplayAbility : public UGameplayAbility
 public:
 
 	UKKGameplayAbility();
-
-	UPROPERTY(EditDefaultsOnly)
-	uint8 AbilityActionWeight = -1;
+	
+	UPROPERTY(EditDefaultsOnly, Instanced)
+	UCharacterAction* CharacterAction;
 
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const override;
 
@@ -54,10 +55,13 @@ public:
 	virtual void ActivateServerAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo);
 
 	UFUNCTION(Client, Reliable, BlueprintCallable)
-	virtual void ApplyStatusToCharacterSlot(ACharacterSlot* CharacterSlot, UCharacterSlotStatus* SlotStatus);
+	virtual void ApplyStatusToCharacterSlot(ACharacterSlot* CharacterSlot, const UCharacterSlotStatus* SlotStatus);
 
 	UFUNCTION(Client, Reliable, BlueprintCallable)
-	virtual void ApplyStatusToCharacterSlots(const TArray<ACharacterSlot*>& CharacterSlots, UCharacterSlotStatus* SlotStatus);
+	virtual void ApplyStatusToCharacterSlots(const TArray<ACharacterSlot*>& CharacterSlots, const UCharacterSlotStatus* SlotStatus);
+
+	UFUNCTION(BlueprintCallable)
+	virtual void ExecuteCharacterAction(const UCharacterSlotStatus* SlotStatus);
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	AKKCharacter* SourceCharacter;

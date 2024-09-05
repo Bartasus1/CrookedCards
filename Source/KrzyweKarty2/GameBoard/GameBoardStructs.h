@@ -1,6 +1,7 @@
 #pragma once
 #include "GameBoardStructs.generated.h"
 
+class AKKCharacter;
 class ACharacterSlot;
 
 namespace GameBoard
@@ -57,6 +58,38 @@ struct FCharacterSlotsRow
 		}
 		
 		return nullptr;
+	}
+
+	ACharacterSlot* operator[](int32 Index)
+	{
+		return CharacterSlots[Index];
+	}
+
+	ACharacterSlot* operator[](int32 Index) const
+	{
+		return CharacterSlots[Index];
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FFractionCharacters
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	AKKCharacter* BaseCharacter;
+
+	UPROPERTY()
+	TArray<AKKCharacter*> Characters;
+
+	TArray<AKKCharacter*> GetAllCharacters()
+	{
+		return Characters += { BaseCharacter };
+	}
+
+	int32 Num() const
+	{
+		return Characters.Num() + 1;
 	}
 };
 

@@ -5,12 +5,14 @@
 
 #include "Kismet/KismetSystemLibrary.h"
 
+#include "KrzyweKarty2/KKBlueprintFunctionLibrary.h"
 #include "KrzyweKarty2/Characters/KKCharacter.h"
+#include "KrzyweKarty2/Characters/CharacterActions/CharacterAction.h"
 #include "KrzyweKarty2/Core/KKGameState.h"
 #include "KrzyweKarty2/Core/KKPlayerState.h"
 #include "KrzyweKarty2/GameBoard/CharacterSlot.h"
 
-UKKGameplayAbility::UKKGameplayAbility(): SourceCharacter(nullptr), GameState(nullptr), GameBoard(nullptr)
+UKKGameplayAbility::UKKGameplayAbility(): CharacterAction(nullptr), SourceCharacter(nullptr), GameState(nullptr), GameBoard(nullptr)
 {
 	ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
@@ -19,9 +21,13 @@ UKKGameplayAbility::UKKGameplayAbility(): SourceCharacter(nullptr), GameState(nu
 
 bool UKKGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
+	check(CharacterAction);
+	
 	if(const AKKCharacter* Character = Cast<AKKCharacter>(ActorInfo->AvatarActor.Get()))
 	{
-		if(!Character->PlayerState->bIsMyTurn || Character->CharacterActions >= AbilityActionWeight)
+		const AKKGameBoard* WorldGameBoard = UKKBlueprintFunctionLibrary::GetGameBoard(Character);
+		
+		if(!Character->PlayerState->bIsMyTurn || !CharacterAction->CanExecuteAction(Character, WorldGameBoard))
 		{
 			return false;
 		}
@@ -47,7 +53,7 @@ void UKKGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	if(ActorInfo->IsNetAuthority())
 	{
 		ActivateServerAbility(Handle, ActorInfo, ActivationInfo);
-
+		
 		K2_ActivateServerAbility();
 	}
 }
@@ -61,6 +67,15 @@ void UKKGameplayAbility::CommitExecute(const FGameplayAbilitySpecHandle Handle, 
 	if(ActorInfo->IsNetAuthority())
 	{
 		GameState->MarkCharacterUsedInRound(SourceCharacter);
+	}
+}
+
+void UKKGameplayAbility::ExecuteCharacterAction(const UCharacterSlotStatus* SlotStatus)
+{
+	if(CharacterAction->QueryStruct.IsValid() && GetCurrentActorInfo()->IsNetAuthority())
+	{
+		ActionSlots = UKKBlueprintFunctionLibrary::QueryCharacterSlots(SourceCharacter, CharacterAction->QueryStruct);
+		ApplyStatusToCharacterSlots(ActionSlots, SlotStatus);
 	}
 }
 
@@ -103,12 +118,12 @@ void UKKGameplayAbility::ActivateServerAbility(const FGameplayAbilitySpecHandle 
 	OnNotifyTargetDataReady = ASC->AbilityTargetDataSetDelegate(Handle, ActivationInfo.GetActivationPredictionKey()).AddUObject(this, &UKKGameplayAbility::NotifyTargetDataReady);
 }
 
-void UKKGameplayAbility::ApplyStatusToCharacterSlot_Implementation(ACharacterSlot* CharacterSlot, UCharacterSlotStatus* SlotStatus)
+void UKKGameplayAbility::ApplyStatusToCharacterSlot_Implementation(ACharacterSlot* CharacterSlot, const UCharacterSlotStatus* SlotStatus)
 {
 	CharacterSlot->SetLocalStatus(SlotStatus);
 }
 
-void UKKGameplayAbility::ApplyStatusToCharacterSlots_Implementation(const TArray<ACharacterSlot*>& CharacterSlots, UCharacterSlotStatus* SlotStatus)
+void UKKGameplayAbility::ApplyStatusToCharacterSlots_Implementation(const TArray<ACharacterSlot*>& CharacterSlots, const UCharacterSlotStatus* SlotStatus)
 {
 	for (ACharacterSlot* CharacterSlot : CharacterSlots)
 	{

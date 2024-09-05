@@ -19,4 +19,6 @@ void AKKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AKKPlayerState, bIsMyTurn);
+
+	DOREPLIFETIME_CONDITION(AKKPlayerState, PlayerFractionCharacters, COND_InitialOnly);
 }

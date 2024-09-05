@@ -28,8 +28,8 @@ public:
 	static FText GetFractionNameByTag(const FGameplayTag& FractionTag);
 
 	UFUNCTION(BlueprintCallable, meta=(WorldContext="WorldContextObject"))
-	static AKKGameBoard* GetGameBoard(UObject* WorldContextObject);
+	static AKKGameBoard* GetGameBoard(const UObject* WorldContextObject);
 	
 	UFUNCTION(BlueprintCallable)
-	static TArray<ACharacterSlot*> QueryCharacterSlots(AKKCharacter* Character, FInstancedStruct Query);
+	static TArray<ACharacterSlot*> QueryCharacterSlots(const AKKCharacter* Character, const FInstancedStruct& Query);
 };

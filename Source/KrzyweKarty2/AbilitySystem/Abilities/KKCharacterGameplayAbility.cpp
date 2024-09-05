@@ -4,11 +4,12 @@
 #include "KKCharacterGameplayAbility.h"
 
 #include "KrzyweKarty2/Characters/KKCharacter.h"
+#include "KrzyweKarty2/Characters/CharacterActions/CharacterAction.h"
 #include "KrzyweKarty2/Core/KKPlayerState.h"
 
 UKKCharacterGameplayAbility::UKKCharacterGameplayAbility()
 {
-	AbilityActionWeight = 3;
+	CharacterAction = CreateDefaultSubobject<UCharacterAction_Ability>("Character Action");
 
 	ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag("CharacterState.IsOnBoard"));
 }
@@ -18,8 +19,7 @@ bool UKKCharacterGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecH
 	if(const AKKCharacter* Character = Cast<AKKCharacter>(ActorInfo->AvatarActor.Get()))
 	{
 		const uint8 AbilityIndex = GetAbilityLevel(Handle, ActorInfo);
-		
-		if(!Character->GetAbilityCost(AbilityIndex).CheckIfCanAfford(ActorInfo->AbilitySystemComponent.Get()))
+		if(!Character->CanActivateCharacterAbility(AbilityIndex))
 		{
 			return false;
 		}

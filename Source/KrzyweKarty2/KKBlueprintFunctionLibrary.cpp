@@ -17,17 +17,18 @@ FText UKKBlueprintFunctionLibrary::GetFractionNameByTag(const FGameplayTag& Frac
 	return DeveloperSettings->FractionTagToNameMap.FindRef(FractionTag);
 }
 
-AKKGameBoard* UKKBlueprintFunctionLibrary::GetGameBoard(UObject* WorldContextObject)
+AKKGameBoard* UKKBlueprintFunctionLibrary::GetGameBoard(const UObject* WorldContextObject)
 {
 	const AKKGameState* GameState = WorldContextObject->GetWorld()->GetGameState<AKKGameState>();
 	return GameState->GetGameBoard();
 }
 
 
-TArray<ACharacterSlot*> UKKBlueprintFunctionLibrary::QueryCharacterSlots(AKKCharacter* Character, FInstancedStruct Query)
+TArray<ACharacterSlot*> UKKBlueprintFunctionLibrary::QueryCharacterSlots(const AKKCharacter* Character, const FInstancedStruct& Query)
 {
 	const AKKGameBoard* GameBoard = GetGameBoard(Character);
 	const FGameBoardQuery* GameBoardQuery = Query.GetPtr<FGameBoardQuery>();
-	
+
+	check(GameBoardQuery);
 	return GameBoardQuery->ExecuteQuery(GameBoard, Character);
 }

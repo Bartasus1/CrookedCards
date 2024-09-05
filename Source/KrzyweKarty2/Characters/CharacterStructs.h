@@ -130,6 +130,7 @@ struct FRelativeDirection
 			FRelativeDirection NormalizedDirection = Direction.Normalize();
 			
 			SortedDirections.FindOrAdd(NormalizedDirection).Add((Direction));
+			SortedDirections.FindChecked(NormalizedDirection).Sort();
 		}
 
 		return SortedDirections;

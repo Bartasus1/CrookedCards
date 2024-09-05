@@ -76,11 +76,11 @@ void AKKGameMode::PostLogin(APlayerController* NewPlayer)
 			// something like this
 			// if(GameBoard)
 			// {
-			// 	SpawnFractionForPlayer();
+			// 	SpawnFractionForPlayer(Player);
 			// }
 			// else
 			// {
-			// 	OnBoardSelected.Broadcast();
+			// 	OnBoardSelected.BindUObject(this, &AKKGameMode::SpawnFractionForPlayer, Player);
 			// }
 		});
 	}
@@ -93,14 +93,16 @@ int32 AKKGameMode::GetDirectionFromID(int32 PlayerID) const
 
 void AKKGameMode::SpawnFractionForPlayer(AKKPlayerController* PlayerController) const
 {
-	AKKPlayerState* KKPlayerState = PlayerController->GetPlayerState<AKKPlayerState>();
+	AKKPlayerState* PlayerState = PlayerController->GetPlayerState<AKKPlayerState>();
 
 	FFractionCharacters FractionCharacters = GameBoard->SpawnPlayerFraction(PlayerController->PlayerID, PlayerController->FractionToSpawn);
+	PlayerState->PlayerFractionCharacters = FractionCharacters;
+	
 	for(AKKCharacter* Character : FractionCharacters.GetAllCharacters())
 	{
 		Character->Direction = GetDirectionFromID(PlayerController->PlayerID);
 		Character->SetOwner(PlayerController);
-		Character->SetPlayerState(KKPlayerState);
+		Character->SetPlayerState(PlayerState);
 		Character->SetAutonomousProxy(true);
 
 		Character->FinishSpawning(Character->GetTransform()); // allow calling BeginPlay on Characters

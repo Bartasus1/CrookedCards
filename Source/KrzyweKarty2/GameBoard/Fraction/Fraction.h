@@ -7,6 +7,9 @@
 #include "Components/BoxComponent.h"
 
 #include "GameFramework/Actor.h"
+
+#include "KrzyweKarty2/GameBoard/GameBoardStructs.h"
+
 #include "Fraction.generated.h"
 
 class AKKCharacter;
@@ -20,28 +23,6 @@ class USpawnIndicator : public UBoxComponent
 public:
 
 	USpawnIndicator();
-};
-
-USTRUCT()
-struct FFractionCharacters
-{
-	GENERATED_BODY()
-
-	UPROPERTY()
-	AKKCharacter* BaseCharacter;
-
-	UPROPERTY()
-	TArray<AKKCharacter*> Characters;
-
-	TArray<AKKCharacter*> GetAllCharacters()
-	{
-		return Characters += {BaseCharacter};
-	}
-
-	int32 Num() const
-	{
-		return Characters.Num() + 1;
-	}
 };
 
 UCLASS()
