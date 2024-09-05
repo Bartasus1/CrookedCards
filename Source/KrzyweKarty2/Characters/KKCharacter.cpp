@@ -164,7 +164,7 @@ TArray<uint8> AKKCharacter::GetSlotsForCharacterSpawn_Implementation() const
 	
 	for(uint8 i = 1; i <= RowSize; i++)
 	{
-		CharacterSlots.Add((Direction == 1) ? i : GetGameBoard()->GetTotalMapSize() - i); // 1,2,3,4 or 20,19,18,17
+		CharacterSlots.Add((Direction == 1) ? i : 21 - i); // 1,2,3,4 or 20,19,18,17
 	}
 	
 	return CharacterSlots;
