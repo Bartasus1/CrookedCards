@@ -62,7 +62,7 @@ void UKKGameplayAbility::CommitExecute(const FGameplayAbilitySpecHandle Handle, 
 {
 	Super::CommitExecute(Handle, ActorInfo, ActivationInfo);
 	
-	//SourceCharacter->CharacterActions = AbilityActionWeight;
+	SourceCharacter->CharacterActions = CharacterAction->ActionWeight;
 	
 	if(ActorInfo->IsNetAuthority())
 	{

@@ -27,11 +27,20 @@ public:
 	UPROPERTY(BlueprintReadOnly, Replicated, VisibleAnywhere)
 	bool bIsMyTurn = false;
 
+	void SetPlayerFraction(const FFractionCharacters& InFractionCharacters);
+
+	void NotifyCharacterDeath();
+
+
+	const TArray<AKKCharacter*>& GetPlayableCharacters() const;
+protected:
+
 	UPROPERTY(BlueprintReadOnly, Replicated, VisibleAnywhere)
 	FFractionCharacters PlayerFractionCharacters;
 
-protected:
-
+	uint8 AliveCharactersCount = 0;
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void OnRep_PlayerName() override;
 	
 };

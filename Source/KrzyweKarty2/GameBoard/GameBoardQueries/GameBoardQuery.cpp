@@ -119,7 +119,7 @@ TArray<ACharacterSlot*> FGameBoardQuery_Movement::ExecuteQuery(const AKKGameBoar
 	GameBoardQuery->RelativeDirections = Character->GetDirectionsForMovement();
 	GameBoardQuery->SelectionPolicy = SSP_NoCharacter;
 	GameBoardQuery->BlockingSelectionPolicy = SSP_WithCharacter;
-	GameBoardQuery->bBreakIfNoSlotFound = false;
+	GameBoardQuery->bBreakIfNoSlotFound = true;
 
 	return GameBoardQuery->ExecuteQuery(GameBoard, Character);
 }

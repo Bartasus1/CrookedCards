@@ -23,8 +23,6 @@ AKKGameBoard* AKKGameState::GetGameBoard() const
 void AKKGameState::RegisterCharacter(AKKCharacter* Character)
 {
 	RegisteredCharacters.Add(Character->GetCharacterUniqueID(), Character);
-
-	
 }
 
 AKKCharacter* AKKGameState::GetCharacterByUniqueID(int32 CharacterUniqueID)

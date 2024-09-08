@@ -96,7 +96,7 @@ void AKKGameMode::SpawnFractionForPlayer(AKKPlayerController* PlayerController) 
 	AKKPlayerState* PlayerState = PlayerController->GetPlayerState<AKKPlayerState>();
 
 	FFractionCharacters FractionCharacters = GameBoard->SpawnPlayerFraction(PlayerController->PlayerID, PlayerController->FractionToSpawn);
-	PlayerState->PlayerFractionCharacters = FractionCharacters;
+	PlayerState->SetPlayerFraction(FractionCharacters);
 	
 	for(AKKCharacter* Character : FractionCharacters.GetAllCharacters())
 	{

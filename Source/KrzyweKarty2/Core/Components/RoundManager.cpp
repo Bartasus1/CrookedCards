@@ -4,36 +4,43 @@
 #include "RoundManager.h"
 
 #include "KrzyweKarty2/Characters/KKCharacter.h"
-#include "KrzyweKarty2/Characters/CharacterActions/CharacterAction.h"
-#include "KrzyweKarty2/Core/KKGameState.h"
 #include "KrzyweKarty2/Core/KKPlayerState.h"
 
 
 URoundManager::URoundManager()
 {
-	PrimaryComponentTick.TickInterval = 0.5;
+
+	SetIsReplicatedByDefault(true);
+}
+
+
+bool URoundManager::CheckIfPlayerCanMove(AKKPlayerState* PlayerState) const
+{
+	TArray<bool> CanCharactersMove;
+	for (const AKKCharacter* Character : PlayerState->GetPlayableCharacters())
+	{
+		if(Character)
+		{
+			CanCharactersMove.Add(Character->CanCharacterBeUsed());
+		}
+	}
+	
+	return CanCharactersMove.Contains(true);
+}
+
+AKKPlayerState* URoundManager::GetCurrentPlayer() const
+{
+	return Players[!bIsFirstPlayerTurn];
 }
 
 void URoundManager::AddPlayerState(AKKPlayerState* PlayerState)
 {
 	Players.Add(PlayerState);
-
 	if(Players.Num() >= 2)
 	{
-		bIsFirstPlayerTurn = false;
+		bIsFirstPlayerTurn = false; // flip so that first player starts
 		ChangeTurn();
 	}
-}
-
-bool URoundManager::CheckIfPlayerCanMove(AKKPlayerState* PlayerState) const
-{
-	TArray<bool> CanCharactersMove;
-	for (const AKKCharacter* Character : PlayerState->PlayerFractionCharacters.Characters)
-	{
-		CanCharactersMove.Add(Character->CanCharacterBeUsed());
-	}
-	
-	return CanCharactersMove.Contains(true);
 }
 
 void URoundManager::MarkCharacterUsed_Implementation(AKKCharacter* Character)
@@ -45,21 +52,15 @@ void URoundManager::MarkCharacterUsed_Implementation(AKKCharacter* Character)
 	{
 		ChangeTurn();
 	}
-
-	//UE_LOG(LogTemp, Warning, TEXT("%d"), bIsFirstPlayerTurn);
-	if(!CheckIfPlayerCanMove(Players[!bIsFirstPlayerTurn])) // if bIsFirstPlayerTurn is true (1), then Players[bIsFirstPlayerTurn] will get us a player that is waiting, but we want the player that was waiting before 
+	
+	if(!CheckIfPlayerCanMove(GetCurrentPlayer())) // if new player can't move roll back to the previous player - we might want to change that
 	{
 		ChangeTurn(); // change turn again if other player can't move
 	}
 }
 
-void URoundManager::ChangeTurn()
+void URoundManager::ChangeTurn_Implementation()
 {
-	PlayerMovePoints = 0;
-	
-	RoundCounter++;
-	OnRep_RoundCounter();
-	
 	bIsFirstPlayerTurn = !bIsFirstPlayerTurn;
 
 	Players[0]->bIsMyTurn = bIsFirstPlayerTurn;
@@ -74,6 +75,11 @@ void URoundManager::ChangeTurn()
 	}
 
 	UsedCharacters.Empty();
+
+	PlayerMovePoints = 0;
+	
+	RoundCounter++;
+	OnRep_RoundCounter();
 }
 
 void URoundManager::BeginPlay()
@@ -88,6 +94,7 @@ void URoundManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 
 	DOREPLIFETIME(URoundManager, RoundCounter);
 	DOREPLIFETIME(URoundManager, bIsFirstPlayerTurn);
+	DOREPLIFETIME(URoundManager, Players);
 }
 
 void URoundManager::OnRep_RoundCounter() const

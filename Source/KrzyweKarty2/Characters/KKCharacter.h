@@ -68,10 +68,10 @@ public:
 		return CharacterID * Direction;
 	}
 
-	UPROPERTY(BlueprintReadOnly, Replicated, Category="Character Data")
+	UPROPERTY(BlueprintReadOnly, Replicated, Category="Character Data", VisibleAnywhere)
 	uint8 CharacterActions = 0;
 
-	UPROPERTY(BlueprintReadOnly, Replicated, Category="Character Data")
+	UPROPERTY(BlueprintReadOnly, Replicated, Category="Character Data", VisibleAnywhere)
 	uint8 CharacterSlotID = -1; // from 0 to 21 -> one for each CharacterSlot
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)

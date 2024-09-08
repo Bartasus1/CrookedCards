@@ -3,12 +3,9 @@
 
 #include "CharacterAttackExecCalculation.h"
 #include "AbilitySystemComponent.h"
-
-#include "Abilities/KKGameplayAbility.h"
-
 #include "Attributes/KKAttributeSet.h"
-
 #include "KrzyweKarty2/Characters/KKCharacter.h"
+#include "KrzyweKarty2/Core/KKPlayerState.h"
 
 UCharacterAttackExecCalculation::UCharacterAttackExecCalculation()
 {
@@ -64,6 +61,8 @@ void UCharacterAttackExecCalculation::Execute_Implementation(const FGameplayEffe
 	
 	if(Health - Damage <= 0.f) // character has died
 	{
+		TargetCharacter->PlayerState->NotifyCharacterDeath();
+		
 		TargetCharacter->OnCharacterDeath.Broadcast();
 		TargetCharacter->Destroy();
 	}

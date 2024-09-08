@@ -38,13 +38,19 @@ public:
 	void AddPlayerState(AKKPlayerState* PlayerState);
 	bool CheckIfPlayerCanMove(AKKPlayerState* PlayerState) const;
 
+	UFUNCTION(BlueprintPure)
+	AKKPlayerState* GetCurrentPlayer() const;
+
 private:
 	uint8 MaxPlayerMovePoints = 3;
 	uint8 PlayerMovePoints = 0;
 
+	UPROPERTY(Replicated)
 	TArray<AKKPlayerState*> Players;
+	
 	TArray<AKKCharacter*> UsedCharacters;
 
+	UFUNCTION(Server, Reliable)
 	void ChangeTurn();
 
 protected:
