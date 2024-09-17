@@ -9,6 +9,7 @@
 
 #include "KKGameInstance.generated.h"
 
+class FOnlineSessionSearch;
 class IOnlineSubsystem;
 /**
  * 
@@ -20,13 +21,22 @@ class KRZYWEKARTY2_API UKKGameInstance : public UGameInstance
 
 public:
 
-	virtual void Init() override;
+	UFUNCTION(BlueprintCallable)
+	void LoginPlayer();
 
 	UFUNCTION(BlueprintCallable)
-	void CreateSession();
+	void CreateSession(FString SessionPassword);
+
+	UFUNCTION(BlueprintCallable)
+	void StartSession();
 
 protected:
 
-	IOnlineSubsystem* OnlineSubsystem;
-	IOnlineIdentityPtr OnlineIdentity;
+	UFUNCTION(BlueprintNativeEvent)
+	void OnSessionCreated(FName SessionName, bool bWasSuccessful);
+
+private:
+
+	bool bSessionExists = false;
+	FDelegateHandle CreateSessionDelegate;
 };

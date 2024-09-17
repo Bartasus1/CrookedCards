@@ -4,43 +4,76 @@
 #include "KKGameInstance.h"
 #include "OnlineSessionSettings.h"
 #include "OnlineSubsystem.h"
-
 #include "Interfaces/OnlineSessionInterface.h"
 
-void UKKGameInstance::Init()
+void UKKGameInstance::LoginPlayer()
 {
-	Super::Init();
-
-	OnlineSubsystem = IOnlineSubsystem::Get();
-	if(OnlineSubsystem)
-	{
-		OnlineIdentity = OnlineSubsystem->GetIdentityInterface();
-	}
-//
-// #if WITH_EDITOR
-// 	OnlineIdentity->AutoLogin(0);
-// #else
-// 	const FOnlineAccountCredentials AccountCredentials("AccountPortal", "", "");
-// 	OnlineIdentity->Login(0, AccountCredentials);
-// #endif
+	const IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
+	const IOnlineIdentityPtr OnlineIdentity = Subsystem->GetIdentityInterface();
 	
+	if(!OnlineIdentity->AutoLogin(0))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Couldn't auto login"));
+		
+		const FOnlineAccountCredentials AccountCredentials("AccountPortal", "", "");
+		OnlineIdentity->Login(0, AccountCredentials);
+	}
 }
 
-void UKKGameInstance::CreateSession()
+void UKKGameInstance::CreateSession(FString SessionPassword)
 {
-	if(IOnlineSessionPtr Session = OnlineSubsystem->GetSessionInterface())
-	{
-		FOnlineSessionSettings SessionSettings;
-		SessionSettings.bAllowInvites = true;
-		SessionSettings.bIsDedicated = false;
-		SessionSettings.bIsLANMatch = false;
-		SessionSettings.bShouldAdvertise = true;
-		SessionSettings.bUseLobbiesIfAvailable = true;
-		SessionSettings.bUsesPresence = true;
-		SessionSettings.bAllowJoinInProgress = true;
-		SessionSettings.bAllowJoinViaPresence = true;
-		SessionSettings.NumPublicConnections = 2;
+	const IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
+	const IOnlineSessionPtr Session = Subsystem->GetSessionInterface();
 
-		Session->CreateSession(0, "NewCardGame", SessionSettings);
+	CreateSessionDelegate = Session->AddOnCreateSessionCompleteDelegate_Handle(FOnCreateSessionCompleteDelegate::CreateUObject(this, &UKKGameInstance::OnSessionCreated));
+	
+	FOnlineSessionSettings SessionSettings;
+	SessionSettings.bAllowInvites = true;
+	SessionSettings.bIsDedicated = false;
+	SessionSettings.bIsLANMatch = false;
+	SessionSettings.bShouldAdvertise = true;
+	SessionSettings.bUseLobbiesIfAvailable = true;
+	SessionSettings.bUsesPresence = true;
+	SessionSettings.bAllowJoinInProgress = false;
+	SessionSettings.bAllowJoinViaPresence = true;
+	SessionSettings.NumPublicConnections = 2;
+	SessionSettings.Settings.Add("Password", FOnlineSessionSetting(SessionPassword, EOnlineDataAdvertisementType::ViaOnlineService));
+
+	if(!Session->CreateSession(0, "Crooked Cards Session", SessionSettings))
+	{
+		Session->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionDelegate);
+		CreateSessionDelegate.Reset();
+
+		if (bSessionExists)
+		{
+			Session->DestroySession("Crooked Cards Session");
+		}
 	}
+}
+
+void UKKGameInstance::StartSession()
+{
+	const IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
+	const IOnlineSessionPtr Session = Subsystem->GetSessionInterface();
+
+	Session->StartSession("Crooked Cards Session");
+}
+
+void UKKGameInstance::OnSessionCreated_Implementation(FName SessionName, bool bWasSuccessful)
+{
+	const IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
+	const IOnlineSessionPtr Session = Subsystem->GetSessionInterface();
+
+	if (bWasSuccessful)
+	{
+		bSessionExists = true;
+		UE_LOG(LogTemp, Log, TEXT("Session: %s Created!"), *SessionName.ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to create session!"));
+	}
+
+	Session->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionDelegate);
+	CreateSessionDelegate.Reset();
 }
