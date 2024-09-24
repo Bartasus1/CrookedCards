@@ -2,9 +2,13 @@
 
 
 #include "FindAndJoinOnlineSession.h"
+#include "OnlineSessionSettings.h"
+#include "OnlineSubsystem.h"
 
 #include "Interfaces/OnlineSessionDelegates.h"
 #include "Interfaces/OnlineSessionInterface.h"
+
+#include "Online/OnlineSessionNames.h"
 
 void UFindAndJoinOnlineSession::Activate()
 {
@@ -28,43 +32,45 @@ void UFindAndJoinOnlineSession::FindSessions(const FName InSearchKey, const FStr
 	const IOnlineSessionPtr Session = Subsystem->GetSessionInterface();
 	
 	TSharedRef<FOnlineSessionSearch> Search = MakeShared<FOnlineSessionSearch>();
-	Search->QuerySettings.Set(InSearchKey, SearchValue, EOnlineComparisonOp::Equals); 
+	Search->bIsLanQuery = false;
+	Search->MaxSearchResults = 20;
+	Search->QuerySettings.Set(InSearchKey, SearchValue, EOnlineComparisonOp::Equals);
+	Search->QuerySettings.Set(SEARCH_LOBBIES, true, EOnlineComparisonOp::Equals);
 
 	
-	Session->AddOnFindSessionsCompleteDelegate_Handle(FOnFindSessionsCompleteDelegate::CreateLambda([this, Search](bool bWasSuccessful)
+	Session->AddOnFindSessionsCompleteDelegate_Handle(FOnFindSessionsCompleteDelegate::CreateLambda([this](bool bWasSuccessful, const TSharedRef<FOnlineSessionSearch>& SessionSearch)
 	{
 		const IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
 		const IOnlineSessionPtr Session = Subsystem->GetSessionInterface();
 	 
-		if (bWasSuccessful)
+		if (bWasSuccessful && !SessionSearch->SearchResults.IsEmpty())
 		{
-			UE_LOG(LogTemp, Log, TEXT("Found sessions..."));
-		 
-			for (const FOnlineSessionSearchResult& SessionInSearchResult : Search->SearchResults)
+			for (const FOnlineSessionSearchResult& SessionInSearchResult : SessionSearch->SearchResults)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Found session with id: %s"), *SessionInSearchResult.GetSessionIdStr());
 
 				FString ConnectString;
-				//Ensure the connection string is resolvable and store the info in ConnectInfo and in SessionToJoin
 				if (Session->GetResolvedConnectString(SessionInSearchResult, NAME_GamePort, ConnectString))
 				{
-					JoinSession(SessionInSearchResult);
-
+					UE_LOG(LogTemp, Log, TEXT("Joining session."));
+					if (!Session->JoinSession(0, "Crooked Cards Session", SessionInSearchResult))
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Join session failed"));
+					}
+					
 					OnSessionFound.Broadcast();
+					break;
 				}
-		 
-				// For the tutorial we will join the first session found automatically. Usually you would loop through all the sessions and determine which one is best to join. 
-				break;            
 			}
 		}
 		else
 		{
 			OnSessionNotFound.Broadcast();
 		}
-	}
+	}, Search
 	));
 	    
-	UE_LOG(LogTemp, Log, TEXT("Finding session."));
+	UE_LOG(LogTemp, Log, TEXT("Finding sessions...."));
 	 
 	if (!Session->FindSessions(0, Search))
 	{

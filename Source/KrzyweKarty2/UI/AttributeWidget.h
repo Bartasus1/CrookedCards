@@ -8,6 +8,7 @@
 #include "AttributeWidget.generated.h"
 
 
+class AKKCharacter;
 class UTextBlock;
 class UImage;
 /**
@@ -20,18 +21,14 @@ class KRZYWEKARTY2_API UAttributeWidget : public UUserWidget
 
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attribute")
 	FGameplayAttribute Attribute;
-	
-	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	TObjectPtr<UImage> AttributeImage;
-	
-	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	TObjectPtr<UTextBlock> AttributeValueText;
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void UpdateValueOfAttribute(const UKKAttributeSet* AttributeSet);
-
-	virtual void NativeConstruct() override;
+	void InitializeAttributeWidget(const AKKCharacter* Character);
 	
+protected:
+	void OnAttributeValueChange(const FOnAttributeChangeData& Data, const int32 MaxAttributeValue);
+
+	UFUNCTION(BlueprintImplementableEvent, DisplayName="OnAttributeValueChange")
+	void BP_OnAttributeValueChange(const float NewValue, const float OldValue, const int32 MaxAttributeValue);
 };

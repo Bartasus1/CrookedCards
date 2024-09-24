@@ -17,14 +17,11 @@ void UCharacterWidget::SetCharacter(AKKCharacter* InCharacter)
 		CharacterImage->SetBrushFromSoftTexture(Character->GetCharacterDataAsset()->CharacterCardTexture);
 		CharacterNameText->SetText(Character->GetCharacterDataAsset()->CharacterName);
 
+		HealthAttributeWidget->InitializeAttributeWidget(InCharacter);
+		ManaAttributeWidget->InitializeAttributeWidget(InCharacter);
+		DefenceAttributeWidget->InitializeAttributeWidget(InCharacter);
+		StrengthAttributeWidget->InitializeAttributeWidget(InCharacter);
+
 		OnCharacterSet();
 	}
-}
-
-void UCharacterWidget::UpdateAllAttributeWidgets() const
-{
-	HealthAttributeWidget->UpdateValueOfAttribute(Character->GetAttributeSet());
-	ManaAttributeWidget->UpdateValueOfAttribute(Character->GetAttributeSet());
-	DefenceAttributeWidget->UpdateValueOfAttribute(Character->GetAttributeSet());
-	StrengthAttributeWidget->UpdateValueOfAttribute(Character->GetAttributeSet());
 }

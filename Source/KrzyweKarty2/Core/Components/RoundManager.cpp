@@ -9,7 +9,6 @@
 
 URoundManager::URoundManager()
 {
-
 	SetIsReplicatedByDefault(true);
 }
 
@@ -38,7 +37,7 @@ void URoundManager::AddPlayerState(AKKPlayerState* PlayerState)
 	Players.Add(PlayerState);
 	if(Players.Num() >= 2)
 	{
-		bIsFirstPlayerTurn = false; // flip so that first player starts
+		bIsFirstPlayerTurn = false; // temp - flip so that first player starts - can make it RandomBool
 		ChangeTurn();
 	}
 }
@@ -53,7 +52,7 @@ void URoundManager::MarkCharacterUsed_Implementation(AKKCharacter* Character)
 		ChangeTurn();
 	}
 	
-	if(!CheckIfPlayerCanMove(GetCurrentPlayer())) // if new player can't move roll back to the previous player - we might want to change that
+	if(!CheckIfPlayerCanMove(GetCurrentPlayer())) // if new player can't move, roll back to the previous player - we might want to change that
 	{
 		ChangeTurn(); // change turn again if other player can't move
 	}

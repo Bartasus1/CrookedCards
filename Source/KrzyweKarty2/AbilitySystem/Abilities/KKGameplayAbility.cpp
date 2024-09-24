@@ -62,10 +62,9 @@ void UKKGameplayAbility::CommitExecute(const FGameplayAbilitySpecHandle Handle, 
 {
 	Super::CommitExecute(Handle, ActorInfo, ActivationInfo);
 	
-	SourceCharacter->CharacterActions = CharacterAction->ActionWeight;
-	
 	if(ActorInfo->IsNetAuthority())
 	{
+		SourceCharacter->CharacterActions = CharacterAction->ActionWeight;
 		GameState->MarkCharacterUsedInRound(SourceCharacter);
 	}
 }

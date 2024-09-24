@@ -23,6 +23,11 @@ void AKKGameMode::SetGameBoard(AKKGameBoard* NewGameBoard)
 {
 	GameBoard = NewGameBoard;
 	GetGameState<AKKGameState>()->GameBoard = GameBoard;
+
+	if(OnGameBoardReady.IsBound())
+	{
+		OnGameBoardReady.Execute();
+	}
 }
 
 AKKPlayerController* AKKGameMode::GetPlayer(uint8 PlayerID)
@@ -66,23 +71,16 @@ void AKKGameMode::PostLogin(APlayerController* NewPlayer)
 
 	if (const AKKPlayerController* KKPlayerController = Cast<AKKPlayerController>(NewPlayer))
 	{
-		int32 Number = KKPlayerController->PlayerID;
-		GetWorldTimerManager().SetTimerForNextTick([this, Number]() //by the next frame, GameBoard should have it's BeginPlay called, where it assigns itself to GameMode
+		const int32 Number = KKPlayerController->PlayerID;
+
+		if(GameBoard)
 		{
-			//UKismetSystemLibrary::PrintString(this, FString::FromInt(Number));
 			SpawnFractionForPlayer(Players[Number]);
-			
-			// todo: maybe make it delegate based ?
-			// something like this
-			// if(GameBoard)
-			// {
-			// 	SpawnFractionForPlayer(Player);
-			// }
-			// else
-			// {
-			// 	OnBoardSelected.BindUObject(this, &AKKGameMode::SpawnFractionForPlayer, Player);
-			// }
-		});
+		}
+		else
+		{
+			OnGameBoardReady.BindUObject(this, &AKKGameMode::SpawnFractionForPlayer, Players[Number]);
+		}
 	}
 }
 

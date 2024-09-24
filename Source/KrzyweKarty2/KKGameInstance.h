@@ -4,9 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-
-#include "Interfaces/OnlineIdentityInterface.h"
-
+#include "Interfaces/OnlineSessionInterface.h"
 #include "KKGameInstance.generated.h"
 
 class FOnlineSessionSearch;
@@ -21,6 +19,8 @@ class KRZYWEKARTY2_API UKKGameInstance : public UGameInstance
 
 public:
 
+	virtual void Init() override;
+
 	UFUNCTION(BlueprintCallable)
 	void LoginPlayer();
 
@@ -34,6 +34,8 @@ protected:
 
 	UFUNCTION(BlueprintNativeEvent)
 	void OnSessionCreated(FName SessionName, bool bWasSuccessful);
+	
+	void OnSessionJoined(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
 private:
 

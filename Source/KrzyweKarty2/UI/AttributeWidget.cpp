@@ -2,27 +2,24 @@
 
 
 #include "AttributeWidget.h"
-#include "Components/Image.h"
-#include "Components/TextBlock.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "KrzyweKarty2/AbilitySystem/Attributes/KKAttributeSet.h"
+#include "KrzyweKarty2/Characters/KKCharacter.h"
 
-void UAttributeWidget::UpdateValueOfAttribute_Implementation(const UKKAttributeSet* AttributeSet)
+
+void UAttributeWidget::InitializeAttributeWidget(const AKKCharacter* Character)
 {
-	const float AttributeValue = Attribute.GetNumericValue(AttributeSet);
-	AttributeValueText->SetText(FText::AsNumber(AttributeValue));
+	UAbilitySystemComponent* AbilitySystemComponent = Character->GetAbilitySystemComponent();
+	UKKAttributeSet* AttributeSet = Character->GetAttributeSet();
 	
-	if(UMaterialInstanceDynamic* MaterialInstanceDynamic = AttributeImage->GetDynamicMaterial())
-	{
-		const int32 MaxAttributeValue = AttributeSet->GetMaxValueForAttribute(Attribute);
-		const float Progress = UKismetMathLibrary::SafeDivide(AttributeValue, MaxAttributeValue);
-		
-		MaterialInstanceDynamic->SetScalarParameterValue("Progress", Progress);
-	}
+	const float AttributeValue = Attribute.GetNumericValue(AttributeSet);
+	const int32 MaxAttributeValue = AttributeSet->GetMaxValueForAttribute(Attribute);
+
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Attribute).AddUObject(this, &UAttributeWidget::OnAttributeValueChange, MaxAttributeValue);
+	
+	BP_OnAttributeValueChange(AttributeValue, AttributeValue, MaxAttributeValue); // call to initialize everything
 }
 
-void UAttributeWidget::NativeConstruct()
+void UAttributeWidget::OnAttributeValueChange(const FOnAttributeChangeData& Data, const int32 MaxAttributeValue)
 {
-	Super::NativeConstruct();
-	
+	BP_OnAttributeValueChange(Data.NewValue, Data.OldValue, MaxAttributeValue);
 }

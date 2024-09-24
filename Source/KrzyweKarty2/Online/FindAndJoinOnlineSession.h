@@ -3,8 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "OnlineSessionSettings.h"
-
 #include "Kismet/BlueprintAsyncActionBase.h"
 #include "FindAndJoinOnlineSession.generated.h"
 

@@ -279,8 +279,6 @@ void AKKCharacter::UpdateCharacterWidgetRender(float DeltaTime)
 	{
 		return;
 	}
-	
-	CharacterWidget->UpdateAllAttributeWidgets();
 
 	FWidgetRenderer* WidgetRenderer = new FWidgetRenderer(false, false);
 	WidgetRenderer->DrawWidget(GetWidgetRenderTarget(), CharacterWidget->TakeWidget(), DrawSize, DeltaTime);

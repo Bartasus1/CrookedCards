@@ -13,6 +13,9 @@ class AKKPlayerController;
 /**
  * 
  */
+
+DECLARE_DELEGATE(FOnGameBoardReady);
+
 UCLASS()
 class KRZYWEKARTY2_API AKKGameMode : public AGameModeBase
 {
@@ -42,4 +45,8 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<AKKGameBoard> GameBoard;
+
+private:
+
+	FOnGameBoardReady OnGameBoardReady;
 };

@@ -14,7 +14,8 @@ bool UCharacterAction::CanExecuteAction(const AKKCharacter* Character, const AKK
 
 	if(QueryStruct.IsValid())
 	{
-		return !UKKBlueprintFunctionLibrary::QueryCharacterSlots(Character, QueryStruct).IsEmpty(); // query slots to check if it's possible to execute an action (has any valid execution slots?)
+		const bool bNoValidSlots = UKKBlueprintFunctionLibrary::QueryCharacterSlots(Character, QueryStruct).IsEmpty();
+		return !bNoValidSlots; // can't execute if there are no valid slots
 	}
 
 	return true;

@@ -46,9 +46,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnCharacterSet();
 
-	UFUNCTION(BlueprintCallable)
-	void UpdateAllAttributeWidgets() const;
-
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<AKKCharacter> Character;
