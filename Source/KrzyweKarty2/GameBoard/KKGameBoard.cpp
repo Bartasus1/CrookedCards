@@ -20,12 +20,12 @@ AKKGameBoard::AKKGameBoard()
 	BaseIndexes.Init(0, 2);
 }
 
-ACharacterSlot* AKKGameBoard::GetCharacterSlotByID(uint8 SlotID, ESlotSelectionPolicy SelectionPolicy) const
+ACharacterSlot* AKKGameBoard::GetCharacterSlotByID(int32 SlotID, ESlotSelectionPolicy SelectionPolicy) const
 {
 	return GetCharacterSlotByCoordinates(GetBoardCoordinateByID(SlotID), SelectionPolicy);
 }
 
-ACharacterSlot* AKKGameBoard::GetCharacterSlotByRelativeDirection(uint8 SourceSlotID, FRelativeDirection RelativeDirection, ESlotSelectionPolicy SelectionPolicy) const
+ACharacterSlot* AKKGameBoard::GetCharacterSlotByRelativeDirection(int32 SourceSlotID, FRelativeDirection RelativeDirection, ESlotSelectionPolicy SelectionPolicy) const
 {
 	const FBoardCoordinate SourceCoordinates = GetBoardCoordinateByID(SourceSlotID);
 	const FBoardCoordinate TargetCoordinates(SourceCoordinates.Row + RelativeDirection.VerticalDirection, SourceCoordinates.Column + RelativeDirection.HorizontalDirection);
@@ -40,55 +40,35 @@ ACharacterSlot* AKKGameBoard::GetCharacterSlotByRelativeDirection(uint8 SourceSl
 
 ACharacterSlot* AKKGameBoard::GetCharacterSlotByCoordinates(FBoardCoordinate SlotCoordinates, ESlotSelectionPolicy SelectionPolicy) const
 {
-	const uint8 X = SlotCoordinates.Row;
-	const uint8 Y = SlotCoordinates.Column;
-	
-	if(AreCoordinatesValid(X, Y))
+	if(ACharacterSlot* CharacterSlot = GetCharacterSlotAtCoordinates(SlotCoordinates))
 	{
-		ACharacterSlot* CharacterSlot = GameBoard[X][Y];
-		
-		switch (SelectionPolicy)
+		if(CharacterSlot->MatchesSelectionPolicy(SelectionPolicy))
 		{
-		case SSP_NoPolicy:
 			return CharacterSlot;
-		case SSP_NoCharacter:
-			if(!CharacterSlot->HasCharacterAtSlot())
-			{
-				return CharacterSlot;
-			}
-			break;
-		case SSP_WithCharacter:
-			if(CharacterSlot->HasCharacterAtSlot())
-			{
-				return CharacterSlot;
-			}
-			break;
-		default:
-			break;
 		}
 	}
 	
 	return nullptr;
 }
 
-FBoardCoordinate AKKGameBoard::GetBoardCoordinateByID(uint8 SlotID) const 
+FBoardCoordinate AKKGameBoard::GetBoardCoordinateByID(int32 SlotID) const 
 {
-	if(SlotID == 0 || SlotID == SlotCounter - 1)
+	if(SlotID == 0 || SlotID == TotalMapSize - 1)
 	{
-		const uint8 BaseSlotRow = (SlotID == 0) ? 0 : GameBoard.Num() - 1;
+		const int32 BaseSlotRow = (SlotID == 0) ? 0 : GameBoard.Num() - 1;
 		
 		return FBoardCoordinate(BaseSlotRow, 0); // base slots
 	}
 	
-	const uint8 RowIndex = 1 + (SlotID - 1) / GameBoard::SizeHorizontal; // 4 -> 1; 8 -> 2
-	const uint8 ColumnIndex = (SlotID - 1) - (RowIndex - 1) * GameBoard::SizeHorizontal; // 4 -> 3; 8 -> 3
+	const int32 RowIndex = 1 + (SlotID - 1) / GameBoard::SizeHorizontal; // 4 -> 1; 8 -> 2
+	const int32 ColumnIndex = (SlotID - 1) - (RowIndex - 1) * GameBoard::SizeHorizontal; // 4 -> 3; 8 -> 3
 	
 	return FBoardCoordinate(RowIndex, ColumnIndex);
 }
 
-uint8 AKKGameBoard::GetTotalMapSize() const
+int32 AKKGameBoard::GetTotalMapSize() const
 {
-	return SlotCounter;
+	return TotalMapSize;
 }
 
 void AKKGameBoard::AddCharacterToBoard(AKKCharacter* Character, ACharacterSlot* CharacterSlot)
@@ -123,7 +103,7 @@ void AKKGameBoard::MoveCharacterToSlot(AKKCharacter* Character, ACharacterSlot* 
 	}
 }
 
-uint8 AKKGameBoard::GetDistanceBetweenSlots(uint8 SlotA, uint8 SlotB)
+int32 AKKGameBoard::GetDistanceBetweenSlots(int32 SlotA, int32 SlotB)
 {
 	const FBoardCoordinate CoordinateA = GetBoardCoordinateByID(SlotA);
 	const FBoardCoordinate CoordinateB = GetBoardCoordinateByID(SlotB);
@@ -159,14 +139,14 @@ void AKKGameBoard::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(AKKGameBoard, GameBoard, COND_InitialOnly);
-	DOREPLIFETIME_CONDITION(AKKGameBoard, SlotCounter, COND_InitialOnly);
+	DOREPLIFETIME(AKKGameBoard, TotalMapSize);
 }
 
 ACharacterSlot* AKKGameBoard::CreateSlotActor(const FVector& SlotLocation, const FRotator& SlotRotation, bool bExecuteImmediateMovement /* = true */)
 {
 	ACharacterSlot* CharacterSlot = GetWorld()->SpawnActor<ACharacterSlot>(CharacterSlotClass, SlotLocation, SlotRotation);
 	CharacterSlot->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
-	CharacterSlot->CharacterSlotID = SlotCounter++;
+	CharacterSlot->CharacterSlotID = TotalMapSize++;
 	CharacterSlot->bExecuteImmediateMovement = bExecuteImmediateMovement;
 
 	return CharacterSlot;
@@ -196,16 +176,16 @@ void AKKGameBoard::CreateBaseSlot(uint8 BaseIndex)
 void AKKGameBoard::CreateGameBoard()
 {
 	const FVector StartLocation = GetActorLocation() + FVector(-250.f, -150.f, 1.f);
-	const uint8 SpacingVertical = 125;
-	const uint8 SpacingHorizontal = 100;
+	const int32 SpacingVertical = 125;
+	const int32 SpacingHorizontal = 100;
 	
 	CreateBaseSlot(0);
 	
-	for (uint8 i = 0; i < GameBoard::SizeVertical; i++)
+	for (int32 i = 0; i < GameBoard::SizeVertical; i++)
 	{
 		FCharacterSlotsRow SlotsRow;
 		
-		for (uint8 j = 0; j < GameBoard::SizeHorizontal; j++)
+		for (int32 j = 0; j < GameBoard::SizeHorizontal; j++)
 		{
 			FVector SlotLocation = StartLocation;
 			SlotLocation.X += i * SpacingVertical;
@@ -221,7 +201,7 @@ void AKKGameBoard::CreateGameBoard()
 	CreateBaseSlot(1);
 }
 
-ACharacterSlot* AKKGameBoard::GetBaseSlotByBaseIndex(uint8 BaseIndex) const
+ACharacterSlot* AKKGameBoard::GetBaseSlotByBaseIndex(int32 BaseIndex) const
 {
 	switch (BaseIndex)
 	{
@@ -263,6 +243,16 @@ FFractionCharacters AKKGameBoard::SpawnPlayerFraction(int32 PlayerID, TSubclassO
 	return FFractionCharacters();
 }
 
+ACharacterSlot* AKKGameBoard::GetCharacterSlotAtCoordinates(FBoardCoordinate BoardCoordinate) const
+{
+	if(AreCoordinatesValid(BoardCoordinate))
+	{
+		return GameBoard[BoardCoordinate.Row][BoardCoordinate.Column];
+	}
+
+	return nullptr;
+}
+
 void AKKGameBoard::InitPlayerBase_Implementation(int32 PlayerID, AKKCharacter* BaseCharacter)
 {
 	if(ACharacterSlot* BaseSlot = GetBaseSlotByBaseIndex(PlayerID))
@@ -271,7 +261,7 @@ void AKKGameBoard::InitPlayerBase_Implementation(int32 PlayerID, AKKCharacter* B
 	}
 }
 
-bool AKKGameBoard::AreCoordinatesValid(const uint8 X, const uint8 Y) const
+bool AKKGameBoard::AreCoordinatesValid(const int32 X, const int32 Y) const
 {
 	return GameBoard.IsValidIndex(X) && GameBoard[X].CharacterSlots.IsValidIndex(Y);
 }
@@ -291,7 +281,7 @@ bool AKKGameBoard::IsBaseInRange(FBoardCoordinate SourceCoordinate) const
 	return false;
 }
 
-ACharacterSlot* AKKGameBoard::GetBaseSlotInRange(uint8 SourceSlotID) const
+ACharacterSlot* AKKGameBoard::GetBaseSlotInRange(int32 SourceSlotID) const
 {
 	const FBoardCoordinate BoardCoordinate = GetBoardCoordinateByID(SourceSlotID);
 	return GetBaseSlotInRange(BoardCoordinate);

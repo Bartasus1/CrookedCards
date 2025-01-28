@@ -24,6 +24,11 @@ void AKKPlayerState::SetPlayerFraction(const FFractionCharacters& InFractionChar
 {
 	PlayerFractionCharacters = InFractionCharacters;
 	AliveCharactersCount = PlayerFractionCharacters.Num() - 1;
+
+	for (AKKCharacter* Character : PlayerFractionCharacters.Characters)
+	{
+		Character->OnCharacterDeath.AddDynamic(this, &AKKPlayerState::NotifyCharacterDeath);
+	}
 }
 
 void AKKPlayerState::NotifyCharacterDeath()

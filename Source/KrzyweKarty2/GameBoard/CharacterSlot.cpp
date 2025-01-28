@@ -40,6 +40,21 @@ void ACharacterSlot::AssignCharacterToSlot(AKKCharacter* Character)
 	MoveCharacter(Character);
 }
 
+bool ACharacterSlot::MatchesSelectionPolicy(ESlotSelectionPolicy SelectionPolicy)
+{
+	switch (SelectionPolicy)
+	{
+	case SSP_NoCharacter:
+		return !HasCharacterAtSlot();
+	case SSP_WithCharacter:
+		return HasCharacterAtSlot();
+	case SSP_NoPolicy:
+		break;
+	}
+	
+	return true;
+}
+
 void ACharacterSlot::RemoveCharacterFromSlot()
 {
 	if(AKKCharacter* Character = GetCharacterAtSlot())

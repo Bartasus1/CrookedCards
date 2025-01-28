@@ -5,9 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "CharacterDataAsset.h"
-
 #include "GameFramework/Actor.h"
-#include "KrzyweKarty2/AbilitySystem/Attributes/KKAttributeSet.h"
 #include "KKCharacter.generated.h"
 
 class UCharacterAction;
@@ -32,7 +30,7 @@ public:
 	AKKCharacter();
 
 	// --------------------------------------
-	// COMPONENTS //
+	// COMPONENTS 
 	// --------------------------------------
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	UStaticMeshComponent* CardMesh;
@@ -69,16 +67,13 @@ public:
 	}
 
 	UPROPERTY(BlueprintReadOnly, Replicated, Category="Character Data", VisibleAnywhere)
-	uint8 CharacterActions = 0;
+	int32 CharacterActions = 0;
 
 	UPROPERTY(BlueprintReadOnly, Replicated, Category="Character Data", VisibleAnywhere)
-	uint8 CharacterSlotID = -1; // from 0 to 21 -> one for each CharacterSlot
+	int32 CharacterSlotID = -1; // from 0 to 21 -> one for each CharacterSlot
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnCharacterDeath OnCharacterDeath;
-
-	UPROPERTY(BlueprintReadWrite)
-	EAttackType AttackType; // attack type that character is performing at the moment
 
 	// ---------------------------------------------------------
 	// ATTACK FUNCTIONS
@@ -115,8 +110,6 @@ public:
 	
 	FAbilityCost GetAbilityCost(uint8 AbilityIndex) const;
 
-	
-
 protected:
 	// ~Begin Actor Interface
 	virtual void BeginPlay() override;
@@ -129,12 +122,12 @@ public:
 	// CHARACTER ACTION SLOTS
 	// ----------------------------------------------------------
 	UFUNCTION(BlueprintNativeEvent, BlueprintPure)
-	TArray<uint8> GetSlotsForCharacterSpawn() const;
+	TArray<int32> GetSlotsForCharacterSpawn() const;
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintPure)
 	TArray<FRelativeDirection> GetDirectionsForMovement() const;
 	
-	UFUNCTION(BlueprintNativeEvent,BlueprintPure)
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure)
 	TArray<FRelativeDirection> GetDirectionsForDefaultAttack() const;
 
 	UFUNCTION(BlueprintCallable)

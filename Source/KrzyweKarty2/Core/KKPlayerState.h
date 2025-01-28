@@ -29,14 +29,20 @@ public:
 
 	void SetPlayerFraction(const FFractionCharacters& InFractionCharacters);
 
-	void NotifyCharacterDeath();
+
 
 
 	const TArray<AKKCharacter*>& GetPlayableCharacters() const;
 protected:
 
-	UPROPERTY(BlueprintReadOnly, Replicated, VisibleAnywhere)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing="OnRep_PlayerFraction", VisibleAnywhere)
 	FFractionCharacters PlayerFractionCharacters;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnRep_PlayerFraction();
+
+	UFUNCTION()
+	void NotifyCharacterDeath();
 
 	uint8 AliveCharactersCount = 0;
 	

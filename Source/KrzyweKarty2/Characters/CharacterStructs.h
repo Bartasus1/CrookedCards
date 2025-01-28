@@ -45,7 +45,7 @@ public:
 	UAttackInfo() { };
 	
 	UPROPERTY(BlueprintReadWrite)
-	EAttackType AttackType = EAttackType::DefaultAttack;
+	FGameplayTag AttackType;
 
 	UPROPERTY(BlueprintReadWrite)
 	float Damage = 0; // set by character

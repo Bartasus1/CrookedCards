@@ -155,13 +155,13 @@ void AKKCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(AKKCharacter, PlayerState);
 }
 
-TArray<uint8> AKKCharacter::GetSlotsForCharacterSpawn_Implementation() const
+TArray<int32> AKKCharacter::GetSlotsForCharacterSpawn_Implementation() const
 {
-	TArray<uint8> CharacterSlots;
-	const uint8 RowSize = GameBoard::SizeHorizontal;
-	const uint8 TotalBoardSize = GetGameBoard()->GetTotalMapSize() - 1;
+	TArray<int32> CharacterSlots;
+	const int32 RowSize = GameBoard::SizeHorizontal;
+	const int32 TotalBoardSize = GetGameBoard()->GetTotalMapSize() - 1;
 	
-	for(uint8 i = 1; i <= RowSize; i++)
+	for(int32 i = 1; i <= RowSize; i++)
 	{
 		CharacterSlots.Add((Direction == 1) ? i : TotalBoardSize - i); // 1,2,3,4 or 20,19,18,17
 	}

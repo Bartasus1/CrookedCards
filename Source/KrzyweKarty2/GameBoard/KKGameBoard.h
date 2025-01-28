@@ -24,16 +24,16 @@ public:
 	AKKGameBoard();
 
 	UFUNCTION(BlueprintPure = false)
-	ACharacterSlot* GetCharacterSlotByID(uint8 SlotID, ESlotSelectionPolicy SelectionPolicy = SSP_NoPolicy) const;
+	ACharacterSlot* GetCharacterSlotByID(int32 SlotID, ESlotSelectionPolicy SelectionPolicy = SSP_NoPolicy) const;
 
 	UFUNCTION(BlueprintPure = false)
-	ACharacterSlot* GetCharacterSlotByRelativeDirection(uint8 SourceSlotID, FRelativeDirection RelativeDirection, ESlotSelectionPolicy SelectionPolicy = SSP_NoPolicy) const;
+	ACharacterSlot* GetCharacterSlotByRelativeDirection(int32 SourceSlotID, FRelativeDirection RelativeDirection, ESlotSelectionPolicy SelectionPolicy = SSP_NoPolicy) const;
 
 	UFUNCTION(BlueprintPure = false)
 	ACharacterSlot* GetCharacterSlotByCoordinates(FBoardCoordinate SlotCoordinates, ESlotSelectionPolicy SelectionPolicy = SSP_NoPolicy) const;
 
 	UFUNCTION(BlueprintPure)
-	uint8 GetTotalMapSize() const;
+	int32 GetTotalMapSize() const;
 
 	UFUNCTION(BlueprintCallable)
 	void AddCharacterToBoard(AKKCharacter* Character, ACharacterSlot* CharacterSlot);
@@ -42,11 +42,11 @@ public:
 	void MoveCharacterToSlot(AKKCharacter* Character, ACharacterSlot* CharacterSlot);
 
 	UFUNCTION(BlueprintCallable)
-	uint8 GetDistanceBetweenSlots(uint8 SlotA, uint8 SlotB);
+	int32 GetDistanceBetweenSlots(int32 SlotA, int32 SlotB);
 	
 protected:
 
-	FBoardCoordinate GetBoardCoordinateByID(uint8 SlotID) const;
+	FBoardCoordinate GetBoardCoordinateByID(int32 SlotID) const;
 
 public:
 	UFUNCTION(BlueprintNativeEvent)
@@ -61,12 +61,13 @@ public:
 	FFractionCharacters SpawnPlayerFraction(int32 PlayerID, TSubclassOf<AFraction> FractionClass);
 
 private:
-	bool AreCoordinatesValid(uint8 X, uint8 Y) const;
+	ACharacterSlot* GetCharacterSlotAtCoordinates(FBoardCoordinate BoardCoordinate) const;
+	bool AreCoordinatesValid(int32 X, int32 Y) const;
 	bool AreCoordinatesValid(FBoardCoordinate BoardCoordinate) const;
 	bool IsBaseInRange(FBoardCoordinate SourceCoordinate) const;
 
 public:
-	ACharacterSlot* GetBaseSlotInRange(uint8 SourceSlotID) const;
+	ACharacterSlot* GetBaseSlotInRange(int32 SourceSlotID) const;
 	ACharacterSlot* GetBaseSlotInRange(FBoardCoordinate SourceCoordinate) const;
 
 	
@@ -78,11 +79,11 @@ protected:
 	void CreateBaseSlot(uint8 BaseIndex);
 	void CreateGameBoard();
 	
-	ACharacterSlot* GetBaseSlotByBaseIndex(uint8 BaseIndex) const;
+	ACharacterSlot* GetBaseSlotByBaseIndex(int32 BaseIndex) const;
 private:
 
 	UPROPERTY(Replicated)
-	uint8 SlotCounter = 0;
+	int32 TotalMapSize = 0;
 
 	UPROPERTY(VisibleAnywhere, Replicated)
 	TArray<FCharacterSlotsRow> GameBoard;
@@ -90,7 +91,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TSubclassOf<ACharacterSlot> CharacterSlotClass;
 
-	TArray<uint8> BaseIndexes; 
+	TArray<int32> BaseIndexes; 
 
 public:
 	UFUNCTION(BlueprintCallable)

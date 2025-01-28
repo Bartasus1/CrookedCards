@@ -32,19 +32,11 @@
 			"Enabled": true
 		},
 		{
-			"Name": "EOSShared",
+			"Name": "AdvancedSessions",
 			"Enabled": true
 		},
 		{
-			"Name": "OnlineServicesEOSGS",
-			"Enabled": true
-		},
-		{
-			"Name": "OnlineSubsystemEOS",
-			"Enabled": true
-		},
-		{
-			"Name": "SocketSubsystemEOS",
+			"Name": "AdvancedSteamSessions",
 			"Enabled": true
 		},
 		{

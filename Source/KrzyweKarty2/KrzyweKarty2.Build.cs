@@ -10,19 +10,25 @@ public class KrzyweKarty2 : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "StructUtils" });
 
-		PublicDependencyModuleNames.AddRange(new string[] { "GameplayAbilities", "GameplayTags", "GameplayTasks", "UMG", "Slate", "SlateCore", "RenderCore", "DeveloperSettings", "OnlineSubsystemEOS", "OnlineSubsystemUtils"});
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"GameplayAbilities", 
+			"GameplayTags", 
+			"GameplayTasks", 
+			"UMG", 
+			"Slate", 
+			"SlateCore", 
+			"RenderCore", 
+			"DeveloperSettings"
+		});
 
 		if (Target.bBuildEditor)
 		{
 			PrivateDependencyModuleNames.AddRange(new string[] {"SubobjectDataInterface" });
 		}
-
-		// Uncomment if you are using Slate UI
-		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 		
+		//PrivateDependencyModuleNames.Add("OnlineSubsystemSteam");
+		DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");
 		
-		PrivateDependencyModuleNames.Add("OnlineSubsystem");
-
-		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
 	}
 }

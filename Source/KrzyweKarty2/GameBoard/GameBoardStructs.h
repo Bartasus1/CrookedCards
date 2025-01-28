@@ -6,8 +6,8 @@ class ACharacterSlot;
 
 namespace GameBoard
 {
-	const uint8 SizeVertical = 5;
-	const uint8 SizeHorizontal = 4;
+	constexpr uint8 SizeVertical = 5;
+	constexpr uint8 SizeHorizontal = 4;
 }
 
 USTRUCT(Blueprintable, BlueprintType)
@@ -16,7 +16,7 @@ struct KRZYWEKARTY2_API FBoardCoordinate
 	GENERATED_BODY()
 
 	FBoardCoordinate() {}
-	FBoardCoordinate(uint8 InRow, uint8 InColumn)
+	FBoardCoordinate(int32 InRow, int32 InColumn)
 	{
 		if(InRow == 0 || InRow == GameBoard::SizeVertical + 1) // if board coordinate is a base slot, it's column should be 0
 		{
@@ -28,10 +28,10 @@ struct KRZYWEKARTY2_API FBoardCoordinate
 	}
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	uint8 Row = 0;
+	int32 Row = 0;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	uint8 Column = 0;
+	int32 Column = 0;
 };
 
 USTRUCT(BlueprintType)
@@ -76,10 +76,10 @@ struct FFractionCharacters
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	AKKCharacter* BaseCharacter;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	TArray<AKKCharacter*> Characters;
 
 	TArray<AKKCharacter*> GetAllCharacters()

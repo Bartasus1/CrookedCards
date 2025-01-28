@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameBoardStructs.h"
 #include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include "CharacterSlot.generated.h"
@@ -20,6 +21,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> SlotMeshComponent;
+
+	bool MatchesSelectionPolicy(ESlotSelectionPolicy SelectionPolicy);
 	
 	// MANAGING CHARACTER //
 	void AssignCharacterToSlot(AKKCharacter* Character);
@@ -53,7 +56,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(BlueprintReadOnly, Replicated, VisibleAnywhere)
-	int32 CharacterInSlotUniqueID = 0; // 0 - no character, any other number - character at the slot | greater than 0 - first player, smaller than 0 - second player
+	int32 CharacterInSlotUniqueID = 0; // 0 - no character | any other number - character at the slot -> greater than 0 - first player, smaller than 0 - second player
 
 	UPROPERTY(BlueprintReadOnly, Replicated, VisibleAnywhere)
 	int32 CharacterSlotID = 0; // slot's own ID, set at the BeginPlay

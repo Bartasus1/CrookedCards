@@ -14,6 +14,8 @@ UCharacterAttackExecCalculation::UCharacterAttackExecCalculation()
 	
 	RelevantAttributesToCapture.Add(HealthDef);
 	RelevantAttributesToCapture.Add(DefenceDef);
+
+	bRequiresPassedInTags = true;
 }
 
 void UCharacterAttackExecCalculation::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
@@ -30,7 +32,7 @@ void UCharacterAttackExecCalculation::Execute_Implementation(const FGameplayEffe
 	}
 	
 	UAttackInfo* AttackInfo = NewObject<UAttackInfo>();
-	AttackInfo->AttackType = SourceCharacter->AttackType; // no other way to pass info to ExecCalculation :( todo: maybe try with GameplayTags instead
+	AttackInfo->AttackType = ExecutionParams.GetPassedInTags().First();
 	
 	if(!TargetCharacter->Target_CanBeAttacked(SourceCharacter, AttackInfo)) // target can block attacks, so no point going further
 	{
@@ -58,18 +60,17 @@ void UCharacterAttackExecCalculation::Execute_Implementation(const FGameplayEffe
 
 	
 	const float Damage = FMath::Max(AttackInfo->Damage - Defence, 0.f);
+	const float DefenceDamage = (Defence > 0) ? -1.f : 0.f;
 	
 	if(Health - Damage <= 0.f) // character has died
 	{
-		TargetCharacter->PlayerState->NotifyCharacterDeath();
-		
 		TargetCharacter->OnCharacterDeath.Broadcast();
 		TargetCharacter->Destroy();
 	}
 	else
 	{
 		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(HealthProperty, EGameplayModOp::Additive, -Damage));
-		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DefenceProperty, EGameplayModOp::Additive, -1.f));
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DefenceProperty, EGameplayModOp::Additive, DefenceDamage));
 	}
 	
 }
