@@ -24,7 +24,7 @@ struct FInputActionTag
 	UInputAction* InputAction;
 
 	UPROPERTY(EditAnywhere)
-	FGameplayTag InputTag;
+	FGameplayTag InputTag = FGameplayTag::EmptyTag;
 };
 
 UCLASS()

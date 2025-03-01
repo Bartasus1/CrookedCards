@@ -104,8 +104,13 @@ void AKKCharacter::BeginPlay()
 	AttributeSet->InitFromCharacterStatistics(CharacterDataAsset->CharacterStats);
 	GetAbilitySystemComponent()->AddSpawnedAttribute(AttributeSet);
 
-	CharacterWidget = CreateWidget<UCharacterWidget>(GetWorld(), UKKCharacterDeveloperSettings::Get()->CardWidgetClass.LoadSynchronous());
-	CharacterWidget->SetCharacter(this);
+	UClass* WidgetClass = UKKCharacterDeveloperSettings::Get()->CardWidgetClass.LoadSynchronous();
+	CharacterWidget = CreateWidget<UCharacterWidget>(GetWorld(), WidgetClass);
+	if(CharacterWidget != nullptr)
+	{
+		CharacterWidget->SetCharacter(this);
+	}
+
 
 	UpdateCharacterWidgetRender();
 

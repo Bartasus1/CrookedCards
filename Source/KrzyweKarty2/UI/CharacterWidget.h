@@ -48,6 +48,6 @@ public:
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<AKKCharacter> Character;
+	AKKCharacter* Character;
 	
 };

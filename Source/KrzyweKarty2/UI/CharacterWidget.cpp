@@ -10,7 +10,7 @@
 
 void UCharacterWidget::SetCharacter(AKKCharacter* InCharacter)
 {
-	if(InCharacter)
+	if(IsValid(InCharacter))
 	{
 		Character = InCharacter;
 

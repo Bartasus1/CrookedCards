@@ -73,8 +73,11 @@ void AKKGameMode::PostLogin(APlayerController* NewPlayer)
 	{
 		const int32 Number = KKPlayerController->PlayerID;
 
+		UE_LOG(LogTemp, Warning, TEXT("Player Joined!!"));
+
 		if(GameBoard)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Spawning fraction for the Player!!"));
 			SpawnFractionForPlayer(Players[Number]);
 		}
 		else

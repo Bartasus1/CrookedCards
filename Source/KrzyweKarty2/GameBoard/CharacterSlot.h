@@ -31,7 +31,7 @@ public:
 	void RemoveCharacterFromSlot();
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE bool HasCharacterAtSlot() const;
+	bool HasCharacterAtSlot() const;
 
 	UFUNCTION(BlueprintCallable)
 	AKKCharacter* GetCharacterAtSlot() const;

@@ -37,7 +37,7 @@ struct FGameBoardQuery_Normal : public FGameBoardQuery // Returns all slots that
 	TArray<FRelativeDirection> RelativeDirections;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TEnumAsByte<ESlotSelectionPolicy> SelectionPolicy;
+	TEnumAsByte<ESlotSelectionPolicy> SelectionPolicy = ESlotSelectionPolicy::SSP_NoCharacter;
 
 	virtual TArray<ACharacterSlot*> ExecuteQuery(const AKKGameBoard* GameBoard, const AKKCharacter* Character) const override;
 };
@@ -48,7 +48,7 @@ struct FGameBoardQuery_Projectile : public FGameBoardQuery_Normal // Returns slo
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TEnumAsByte<ESlotSelectionPolicy> BlockingSelectionPolicy;
+	TEnumAsByte<ESlotSelectionPolicy> BlockingSelectionPolicy = ESlotSelectionPolicy::SSP_NoCharacter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bBreakIfNoSlotFound = true;

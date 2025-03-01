@@ -11,6 +11,8 @@
 #include "KrzyweKarty2/Core/KKGameMode.h"
 #include "Net/UnrealNetwork.h"
 
+#define PrintString(message) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, message)
+
 AKKGameBoard::AKKGameBoard()
 {
 	bReplicates = true;
@@ -42,6 +44,7 @@ ACharacterSlot* AKKGameBoard::GetCharacterSlotByCoordinates(FBoardCoordinate Slo
 {
 	if(ACharacterSlot* CharacterSlot = GetCharacterSlotAtCoordinates(SlotCoordinates))
 	{
+		
 		if(CharacterSlot->MatchesSelectionPolicy(SelectionPolicy))
 		{
 			return CharacterSlot;
@@ -231,11 +234,14 @@ TArray<ACharacterSlot*> AKKGameBoard::GetCharacterSlotsArray() const
 
 FFractionCharacters AKKGameBoard::SpawnPlayerFraction(int32 PlayerID, TSubclassOf<AFraction> FractionClass)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Inside spawning function!!"));
 	if(HasAuthority() && FractionClass)
 	{
 		AFraction* Fraction = GetWorld()->SpawnActor<AFraction>(FractionClass, GetTransformForFraction(PlayerID));
 
 		FFractionCharacters FractionCharacters = Fraction->SpawnFractionCharacters();
+		
+		UE_LOG(LogTemp, Warning, TEXT("Spawning completed!! Spawned characters: %d"), FractionCharacters.Num());
 		
 		return FractionCharacters;
 	}

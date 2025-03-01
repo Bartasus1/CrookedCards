@@ -77,7 +77,7 @@ struct FFractionCharacters
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
-	AKKCharacter* BaseCharacter;
+	AKKCharacter* BaseCharacter = nullptr;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<AKKCharacter*> Characters;

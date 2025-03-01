@@ -2,8 +2,11 @@
 
 
 #include "Fraction.h"
-#include "SubobjectDataHandle.h"
-#include "SubobjectDataSubsystem.h"
+
+#if WITH_EDITOR
+	#include "SubobjectDataHandle.h"
+	#include "SubobjectDataSubsystem.h"
+#endif
 
 #include "Components/ArrowComponent.h"
 

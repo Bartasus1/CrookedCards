@@ -59,6 +59,12 @@ void AKKPlayerState::OnRep_PlayerName()
 {
 	Super::OnRep_PlayerName();
 
-	GetWorld()->GetGameState<AKKGameState>()->GetRoundManager()->OnRoundChanged.Broadcast();
+	if(GetWorld())
+	{
+		if(AKKGameState* GameState = GetWorld()->GetGameState<AKKGameState>())
+		{
+			GameState->GetRoundManager()->OnRoundChanged.Broadcast();
+		}
+	}
 	// update round widget
 }
