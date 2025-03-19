@@ -5,7 +5,6 @@
 #include "AbilitySystemComponent.h"
 #include "Attributes/KKAttributeSet.h"
 #include "KrzyweKarty2/Characters/KKCharacter.h"
-#include "KrzyweKarty2/Core/KKPlayerState.h"
 
 UCharacterAttackExecCalculation::UCharacterAttackExecCalculation()
 {
@@ -43,10 +42,10 @@ void UCharacterAttackExecCalculation::Execute_Implementation(const FGameplayEffe
 
 	// ---------------------------------------------------
 	// ATTRIBUTES CAPTURE
-	float Health;
-	float Defence;
+	float TargetHealth;
+	float TargetDefence;
 	
-	CaptureAttribues(ExecutionParams, Health, Defence);
+	CaptureAttribues(ExecutionParams, TargetHealth, TargetDefence);
 
 	// ---------------------------------------------------
 	
@@ -56,21 +55,21 @@ void UCharacterAttackExecCalculation::Execute_Implementation(const FGameplayEffe
 
 	TargetCharacter->Target_OnAttackEnd(SourceCharacter, AttackInfo); // target can play some animations too after the attack
 	
-	SourceCharacter->Attacker_OnAttackEnd(TargetCharacter, AttackInfo); // notify attacker of successful attack - post attack attributes modifications / buffs etc.
+	SourceCharacter->Attacker_OnAttackEnd(TargetCharacter, AttackInfo); // notify attacker of a successful attack - post attack attributes modifications / buffs etc.
 
 	
-	const float Damage = FMath::Max(AttackInfo->Damage - Defence, 0.f);
-	const float DefenceDamage = (Defence > 0) ? -1.f : 0.f;
+	const float HealthDamage = FMath::Max(AttackInfo->Damage - TargetDefence, 0.f);
+	const float DefenceDamage = (TargetDefence > 0) ? 1.f : 0.f;
 	
-	if(Health - Damage <= 0.f) // character has died
+	if(TargetHealth - HealthDamage <= 0.f) // character has died
 	{
 		TargetCharacter->OnCharacterDeath.Broadcast();
 		TargetCharacter->Destroy();
 	}
 	else
 	{
-		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(HealthProperty, EGameplayModOp::Additive, -Damage));
-		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DefenceProperty, EGameplayModOp::Additive, DefenceDamage));
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(HealthProperty, EGameplayModOp::Additive, -HealthDamage));
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DefenceProperty, EGameplayModOp::Additive, -DefenceDamage));
 	}
 	
 }
