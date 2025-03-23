@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "AttackComponent.h"
+#include "ControlFlow.h"
+#include "ControlFlowNode.h"
 #include "GameplayTagContainer.h"
 
 #include "UObject/Object.h"
@@ -31,6 +33,19 @@ struct FAttackContext
 	{
 		return Attacker && Victim;
 	}
+
+	bool DoesCharacterMatchRole(const AKKCharacter* Character, EAttackRole AttackRole) const
+	{
+		switch (AttackRole)
+		{
+		case EAttackRole::Attacker:
+			return Character == Attacker;
+		case EAttackRole::Victim:
+			return Character == Victim;
+		default:
+			return false;
+		}
+	}
 };
 
 UCLASS(BlueprintType)
@@ -42,6 +57,12 @@ public:
 	
 	UAttackSequence();
 
+	UFUNCTION(BlueprintCallable)
+	void BeginAttack();
+
+	UFUNCTION(BlueprintCallable)
+	void StopExecution();
+
 	UPROPERTY(BlueprintReadOnly, meta=(ExposeOnSpawn="true"))
 	FAttackContext AttackContext;
 
@@ -52,18 +73,24 @@ public:
 	float Damage;
 	
 protected:
-	UFUNCTION(BlueprintCallable)
-	void BeginAttack();
 	
-	void ExecuteAttackStage(EAttackStage Stage);
+	void ExecuteAttackStage(FControlFlowNodeRef FlowHandle, EAttackStage Stage);
+	void ExecuteDamage(FControlFlowNodeRef FlowHandle);
 
+	void GatherAttackComponents(const AKKCharacter* Character);
+
+private:
 	TMap<EAttackStage, TArray<UAttackComponent*>> AttackPipeline;
+
+	TSharedPtr<FControlFlow> AttackFlow;
 
 public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE AKKCharacter* GetAttacker() const { return AttackContext.Attacker; }
+	
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE AKKCharacter* GetVictim() const { return AttackContext.Victim; }
+
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE FGameplayTag GetAttackType() const { return AttackContext.AttackType; }
 };

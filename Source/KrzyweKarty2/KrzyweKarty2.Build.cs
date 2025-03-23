@@ -23,7 +23,8 @@ public class KrzyweKarty2 : ModuleRules
 			"Slate", 
 			"SlateCore", 
 			"RenderCore", 
-			"DeveloperSettings"
+			"DeveloperSettings",
+			"ControlFlows"
 		});
 
 		if (Target.bBuildEditor)

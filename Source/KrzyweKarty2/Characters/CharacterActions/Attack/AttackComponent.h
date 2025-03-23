@@ -13,9 +13,9 @@ UENUM()
 enum class EAttackStage : uint8
 {
 	PreAttack	UMETA(DisplayName = "Pre-Attack", ToolTip="Pre eliminary attack stage. Can be used to stop it"),
-	Before		UMETA(DisplayName = "Before", ToolTip="Before the attack is executed"),
-	After		UMETA(DisplayName = "After", ToolTip="After the attack is executed"),
-	MAX		UMETA(Hidden)
+	Before		UMETA(DisplayName = "Before", ToolTip="Before the attack is executed - calculate damage etc."),
+	After		UMETA(DisplayName = "After", ToolTip="After the attack is executed - apply post attack effects"),
+	MAX			UMETA(Hidden)
 };
 ENUM_RANGE_BY_COUNT(EAttackStage, EAttackStage::MAX);
 

@@ -2,6 +2,7 @@
 
 
 #include "AttackSequence.h"
+#include "ControlFlowManager.h"
 #include "KrzyweKarty2/Characters/KKCharacter.h"
 
 UAttackSequence::UAttackSequence(): AttackContext()
@@ -14,31 +15,64 @@ UAttackSequence::UAttackSequence(): AttackContext()
 
 void UAttackSequence::BeginAttack()
 {
-	GetAttacker()->ForEachComponent<UAttackComponent>(false, [&](UAttackComponent* AttackComponent)
-	{
-		AttackPipeline[AttackComponent->AttackStage].Add(AttackComponent);
-	});
+	GatherAttackComponents(GetAttacker());
+	GatherAttackComponents(GetVictim());
 
-	GetVictim()->ForEachComponent<UAttackComponent>(false, [&](UAttackComponent* AttackComponent)
-	{
-		AttackPipeline[AttackComponent->AttackStage].Add(AttackComponent);
-	});
+	FControlFlow& Flow = FControlFlowStatics::Create(this, TEXT("AttackFlow"))
+		.QueueStep("PreAttack", this, &ThisClass::ExecuteAttackStage, EAttackStage::PreAttack)
+		.QueueStep("Before", this, &ThisClass::ExecuteAttackStage, EAttackStage::Before)
+		.QueueStep("ExecuteDamage", this, &ThisClass::ExecuteDamage)
+		.QueueStep("PreAttack", this, &ThisClass::ExecuteAttackStage, EAttackStage::After);
 
-	//TODO: Add ability to interupt sequence & add attack result info
-	ExecuteAttackStage(EAttackStage::PreAttack);
-	ExecuteAttackStage(EAttackStage::Before);
+	AttackFlow = Flow.AsShared();
 	
-	UGameplayEffect* GameplayEffect = AttackGameplayEffectClass->GetDefaultObject<UGameplayEffect>();
-	GetAttacker()->GetAbilitySystemComponent()->ApplyGameplayEffectToTarget(GameplayEffect, GetVictim()->GetAbilitySystemComponent());
-
-	ExecuteAttackStage(EAttackStage::After);
-	
+	Flow.ExecuteFlow();
 }
 
-void UAttackSequence::ExecuteAttackStage(EAttackStage Stage)
+void UAttackSequence::StopExecution()
+{
+	if(AttackFlow)
+	{
+		AttackFlow->CancelFlow();
+		UE_LOG(LogTemp, Warning, TEXT("Cancel Flow Properly"));
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Cancel Flow"));
+}
+
+void UAttackSequence::ExecuteAttackStage(FControlFlowNodeRef FlowHandle, EAttackStage Stage)
 {
 	for (const UAttackComponent* AttackComponent : AttackPipeline[Stage])
 	{
 		AttackComponent->AttackStageExecution.Broadcast(this);
 	}
+	
+	if(!FlowHandle->HasCancelBeenRequested())
+	{
+		FlowHandle->ContinueFlow();
+	}
+	
+
+	UE_LOG(LogTemp, Warning, TEXT("Attack stage %s executed"), *UEnum::GetValueAsString(Stage));
+}
+
+void UAttackSequence::ExecuteDamage(FControlFlowNodeRef FlowHandle)
+{
+	UGameplayEffect* GameplayEffect = AttackGameplayEffectClass->GetDefaultObject<UGameplayEffect>();
+	GetAttacker()->GetAbilitySystemComponent()->ApplyGameplayEffectToTarget(GameplayEffect, GetVictim()->GetAbilitySystemComponent());
+
+	if(!FlowHandle->HasCancelBeenRequested())
+	{
+		FlowHandle->ContinueFlow();
+	}
+}
+
+void UAttackSequence::GatherAttackComponents(const AKKCharacter* Character)
+{
+	Character->ForEachComponent<UAttackComponent>(false, [this, &Character](UAttackComponent* AttackComponent)
+	{
+		if(AttackContext.DoesCharacterMatchRole(Character, AttackComponent->AttackRole))
+		{
+			AttackPipeline[AttackComponent->AttackStage].Add(AttackComponent);
+		}
+	});
 }

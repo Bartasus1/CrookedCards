@@ -46,6 +46,10 @@
 		{
 			"Name": "OpenImageDenoise",
 			"Enabled": false
+		},
+		{
+			"Name": "ControlFlows",
+			"Enabled": true
 		}
 	]
 }
