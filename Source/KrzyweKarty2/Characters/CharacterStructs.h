@@ -28,32 +28,6 @@ struct FCharacterStats
 	uint8 MaxAttackRange = 1;
 };
 
-UENUM(BlueprintType)
-enum class EAttackType : uint8
-{
-	DefaultAttack,
-	ActiveAbility,
-	PassiveAbility
-};
-
-UCLASS(BlueprintType) // originally a struct, but BP events don't support passing structs/primitives by reference
-class UAttackInfo : public UObject // any info about an attack that can be useful
-{
-	GENERATED_BODY()
-public:
-
-	UAttackInfo() { };
-	
-	UPROPERTY(BlueprintReadWrite)
-	FGameplayTag AttackType;
-
-	UPROPERTY(BlueprintReadWrite)
-	float Damage = 0; // set by character
-
-	UPROPERTY(BlueprintReadWrite)
-	uint8 AttackLevel = 0; // applies when AttackType is Ability
-};
-
 USTRUCT(BlueprintType)
 struct FAbilityCost
 {

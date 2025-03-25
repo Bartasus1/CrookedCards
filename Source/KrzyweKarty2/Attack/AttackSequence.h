@@ -5,8 +5,7 @@
 #include "CoreMinimal.h"
 #include "AttackComponent.h"
 #include "ControlFlow.h"
-#include "ControlFlowNode.h"
-#include "GameplayTagContainer.h"
+#include "GameplayEffectTypes.h"
 
 #include "UObject/Object.h"
 #include "AttackSequence.generated.h"
@@ -27,7 +26,10 @@ struct FAttackContext
 	AKKCharacter* Victim;
 
 	UPROPERTY(BlueprintReadWrite)
-	FGameplayTag AttackType;
+	EAttackType AttackType = EAttackType::DefaultAttack;
+
+	UPROPERTY(BlueprintReadWrite, meta=(EditCondition="AttackType != EAttackType::DefaultAttack", EditConditionHides))
+	uint8 AbilityIndex = 0;
 
 	bool IsValid() const
 	{
@@ -63,28 +65,37 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StopExecution();
 
-	UPROPERTY(BlueprintReadOnly, meta=(ExposeOnSpawn="true"))
+	UFUNCTION(BlueprintCallable)
+	void ModifyDamage(int32 InDamage, EGameplayModOp::Type ModificationType = EGameplayModOp::Override);
+
+private:
+
+	UPROPERTY(BlueprintReadOnly, meta=(ExposeOnSpawn="true", AllowPrivateAccess="true"))
 	FAttackContext AttackContext;
 
-	UPROPERTY(BlueprintReadOnly, meta=(ExposeOnSpawn="true"))
+	UPROPERTY(BlueprintReadOnly, meta=(ExposeOnSpawn="true", AllowPrivateAccess="true"))
 	TSubclassOf<UGameplayEffect> AttackGameplayEffectClass;
-	
-	UPROPERTY(BlueprintReadWrite)
-	float Damage;
+
+	UPROPERTY(BlueprintReadOnly)
+	TOptional<int32> Damage;
 	
 protected:
 	
-	void ExecuteAttackStage(FControlFlowNodeRef FlowHandle, EAttackStage Stage);
-	void ExecuteDamage(FControlFlowNodeRef FlowHandle);
+	void ExecuteAttackStage(EAttackStage Stage);
+	void ExecuteDamage();
+	void CheckVictimDeath();
 
 	void GatherAttackComponents(const AKKCharacter* Character);
+	bool DoesComponentMatchPrerequisites(const UAttackComponent* AttackComponent, const AKKCharacter* Character) const;
 
 private:
+	
 	TMap<EAttackStage, TArray<UAttackComponent*>> AttackPipeline;
 
 	TSharedPtr<FControlFlow> AttackFlow;
-
+	
 public:
+	
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE AKKCharacter* GetAttacker() const { return AttackContext.Attacker; }
 	
@@ -92,5 +103,8 @@ public:
 	FORCEINLINE AKKCharacter* GetVictim() const { return AttackContext.Victim; }
 
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE FGameplayTag GetAttackType() const { return AttackContext.AttackType; }
+	FORCEINLINE EAttackType GetAttackType() const { return AttackContext.AttackType; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE bool IsAbilityAttack() const { return AttackContext.AttackType != EAttackType::DefaultAttack; }
 };

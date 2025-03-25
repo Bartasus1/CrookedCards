@@ -30,35 +30,14 @@ void UCharacterAttackExecCalculation::Execute_Implementation(const FGameplayEffe
 		return;
 	}
 	
-	UAttackInfo* AttackInfo = NewObject<UAttackInfo>();
-	AttackInfo->AttackType = ExecutionParams.GetPassedInTags().First();
-	
-	if(!TargetCharacter->Target_CanBeAttacked(SourceCharacter, AttackInfo)) // target can block attacks, so no point going further
-	{
-		return;
-	}
-	
-	SourceCharacter->Attacker_OnAttackBegin(TargetCharacter, AttackInfo); // notify attacker (just in case or maybe an animation or some attributes changes - that's why we do it before attributes capture)
-
 	// ---------------------------------------------------
 	// ATTRIBUTES CAPTURE
 	float TargetHealth;
 	float TargetDefence;
 	
 	CaptureAttribues(ExecutionParams, TargetHealth, TargetDefence);
-
-	// ---------------------------------------------------
 	
-	SourceCharacter->Attacker_CalculateDamage(TargetCharacter, AttackInfo); // attacker calculate damage and store it in AttackInfo
-	
-	TargetCharacter->Target_BeforeAttackReceive(SourceCharacter, AttackInfo); // last chance for target to modify some details about an attack
-
-	TargetCharacter->Target_OnAttackEnd(SourceCharacter, AttackInfo); // target can play some animations too after the attack
-	
-	SourceCharacter->Attacker_OnAttackEnd(TargetCharacter, AttackInfo); // notify attacker of a successful attack - post attack attributes modifications / buffs etc.
-
-	
-	const float HealthDamage = FMath::Max(AttackInfo->Damage - TargetDefence, 0.f);
+	const float HealthDamage = FMath::Max(TargetCharacter->GetStrength() - TargetDefence, 0.f);
 	const float DefenceDamage = (TargetDefence > 0) ? 1.f : 0.f;
 	
 	if(TargetHealth - HealthDamage <= 0.f) // character has died

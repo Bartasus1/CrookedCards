@@ -13,7 +13,7 @@ UENUM()
 enum class EAttackStage : uint8
 {
 	PreAttack	UMETA(DisplayName = "Pre-Attack", ToolTip="Pre eliminary attack stage. Can be used to stop it"),
-	Before		UMETA(DisplayName = "Before", ToolTip="Before the attack is executed - calculate damage etc."),
+	Before		UMETA(DisplayName = "Before", ToolTip="Before the attack is executed - change applied damage etc."),
 	After		UMETA(DisplayName = "After", ToolTip="After the attack is executed - apply post attack effects"),
 	MAX			UMETA(Hidden)
 };
@@ -26,10 +26,18 @@ enum class EAttackRole : uint8
 	Attacker	UMETA(DisplayName = "Attacker", ToolTip="The character is an attacker")
 };
 
+UENUM()
+enum class EAttackType : uint8
+{
+	DefaultAttack,
+	ActiveAbility,
+	PassiveAbility
+};
+
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAttackStageExecutionDelegate, UAttackSequence*, AttackSequence);
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), DisplayName="Attack Component")
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent, DisplayName="Attack Component"), DisplayName="Attack Component")
 class KRZYWEKARTY2_API UAttackComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -44,12 +52,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EAttackRole AttackRole = EAttackRole::Attacker;
 
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EAttackType AttackType = EAttackType::DefaultAttack;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(EditCondition="AttackType == EAttackType::ActiveAbility", EditConditionHides))
+	uint8 AbilityIndex = 0;
+	
 public:
-
+	
 	UPROPERTY(EditAnywhere, BlueprintAssignable, Category="Attack")
 	FAttackStageExecutionDelegate AttackStageExecution;
 };

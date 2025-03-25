@@ -74,30 +74,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnCharacterDeath OnCharacterDeath;
-
-	// ---------------------------------------------------------
-	// ATTACK FUNCTIONS
-	// ---------------------------------------------------------
-		// Target
-	UFUNCTION(BlueprintNativeEvent)
-	bool Target_CanBeAttacked(AKKCharacter* Attacker, const UAttackInfo* AttackInfo);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void Target_BeforeAttackReceive(AKKCharacter* Attacker,  UAttackInfo* AttackInfo); // target can change damage based on some conditions
-
-	UFUNCTION(BlueprintNativeEvent)
-	void Target_OnAttackEnd(AKKCharacter* Attacker, const UAttackInfo* AttackInfo);
 	
-		// Attacker
-	UFUNCTION(BlueprintNativeEvent)
-	void Attacker_CalculateDamage(AKKCharacter* TargetCharacter, UAttackInfo* AttackInfo);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void Attacker_OnAttackBegin(AKKCharacter* TargetCharacter, const UAttackInfo* AttackInfo);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void Attacker_OnAttackEnd(AKKCharacter* TargetCharacter, const UAttackInfo* AttackInfo);
-
 	// ----------------------------------------------------------
 	// ABILITY FUNCTIONS
 	// ----------------------------------------------------------

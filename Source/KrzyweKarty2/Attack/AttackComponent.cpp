@@ -4,18 +4,7 @@
 #include "AttackComponent.h"
 
 
-
 UAttackComponent::UAttackComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 }
-
-
-
-void UAttackComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	
-}
-

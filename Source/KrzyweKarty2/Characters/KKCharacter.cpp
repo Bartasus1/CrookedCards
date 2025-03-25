@@ -47,22 +47,6 @@ UAbilitySystemComponent* AKKCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-bool AKKCharacter::Target_CanBeAttacked_Implementation(AKKCharacter* Attacker, const UAttackInfo* AttackInfo)
-{
-	return true;
-}
-
-void AKKCharacter::Attacker_CalculateDamage_Implementation(AKKCharacter* TargetCharacter, UAttackInfo* AttackInfo)
-{
-	AttackInfo->Damage = GetStrength();
-}
-
-void AKKCharacter::Target_OnAttackEnd_Implementation(AKKCharacter* Attacker, const UAttackInfo* AttackInfo)
-{
-	// todo: make some damage VFX and play them here
-}
-
-
 void AKKCharacter::TryActivateCharacterAbility_Implementation(uint8 AbilityIndex)
 {
 	if(PlayerState->bIsUsingAbility || !CharacterAbilityHandles.IsValidIndex(AbilityIndex))
