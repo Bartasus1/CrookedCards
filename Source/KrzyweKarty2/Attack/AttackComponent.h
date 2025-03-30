@@ -30,8 +30,7 @@ UENUM()
 enum class EAttackType : uint8
 {
 	DefaultAttack,
-	ActiveAbility,
-	PassiveAbility
+	Ability
 };
 
 
@@ -52,14 +51,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EAttackRole AttackRole = EAttackRole::Attacker;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EAttackType AttackType = EAttackType::DefaultAttack;
+	UPROPERTY(EditAnywhere, meta=(InlineEditConditionToggle))
+	bool AnyAttackType = false; // Turn off for any attack type
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(EditCondition="!AnyAttackType"))
+	EAttackType AttackType = EAttackType::DefaultAttack; 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(EditCondition="AttackType == EAttackType::ActiveAbility", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(EditCondition="AttackType != EAttackType::DefaultAttack", EditConditionHides))
 	uint8 AbilityIndex = 0;
 	
 public:
 	
 	UPROPERTY(EditAnywhere, BlueprintAssignable, Category="Attack")
 	FAttackStageExecutionDelegate AttackStageExecution;
+
+public:
+
+	bool MatchesAttackType(const EAttackType InAttackType, const int32 InAbilityIndex = -1) const
+	{
+		return (AnyAttackType || AttackType == InAttackType) && (InAbilityIndex == -1 || AbilityIndex == InAbilityIndex);
+	}
 };

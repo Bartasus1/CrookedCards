@@ -12,12 +12,12 @@ UKKAttributeSet::UKKAttributeSet(): MaxCharacterStats(nullptr)
 void UKKAttributeSet::InitFromCharacterStatistics(const FCharacterStats& CharacterStats)
 {
 	MaxCharacterStats = &CharacterStats;
-	
+
 	InitHealth(MaxCharacterStats->Health);
 	InitMana(MaxCharacterStats->Mana);
 	InitDefence(MaxCharacterStats->Defence);
 	InitStrength(MaxCharacterStats->Strength);
-	
+
 	AttributeToMaxStatMap.Add(GetHealthAttribute(), MaxCharacterStats->Health);
 	AttributeToMaxStatMap.Add(GetManaAttribute(), MaxCharacterStats->Mana);
 	AttributeToMaxStatMap.Add(GetDefenceAttribute(), MaxCharacterStats->Defence);
@@ -26,31 +26,31 @@ void UKKAttributeSet::InitFromCharacterStatistics(const FCharacterStats& Charact
 
 int32 UKKAttributeSet::GetMaxValueForAttribute(const FGameplayAttribute& GameplayAttribute) const
 {
-	if(const int32* FoundValue = AttributeToMaxStatMap.Find(GameplayAttribute))
+	if (const int32* FoundValue = AttributeToMaxStatMap.Find(GameplayAttribute))
 	{
 		return *FoundValue;
 	}
 
-	return 0;
+	return 1; // hack for when dividing by max value (don't divide by 0)
 }
 
 void UKKAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 
-	if(Attribute == GetHealthAttribute())
+	if (Attribute == GetHealthAttribute())
 	{
 		NewValue = FMath::Clamp<float>(NewValue, 0.f, MaxCharacterStats->Health);
 	}
-	if(Attribute == GetManaAttribute())
+	if (Attribute == GetManaAttribute())
 	{
 		NewValue = FMath::Clamp<float>(NewValue, 0.f, MaxCharacterStats->Mana);
 	}
-	if(Attribute == GetDefenceAttribute())
+	if (Attribute == GetDefenceAttribute())
 	{
 		NewValue = FMath::Clamp<float>(NewValue, 0.f, MaxCharacterStats->Defence);
 	}
-	if(Attribute == GetStrengthAttribute())
+	if (Attribute == GetStrengthAttribute())
 	{
 		NewValue = FMath::Clamp<float>(NewValue, 0.f, MaxCharacterStats->Strength);
 	}

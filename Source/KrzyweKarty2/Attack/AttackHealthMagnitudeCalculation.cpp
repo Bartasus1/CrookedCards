@@ -6,15 +6,15 @@
 
 UAttackHealthMagnitudeCalculation::UAttackHealthMagnitudeCalculation()
 {
-	VictimHealthDef.AttributeToCapture = UKKAttributeSet::GetHealthAttribute();
-	VictimHealthDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
-	VictimHealthDef.bSnapshot = true;
-
+	AttackerStrengthDef.AttributeToCapture = UKKAttributeSet::GetStrengthAttribute();
+	AttackerStrengthDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
+	AttackerStrengthDef.bSnapshot = true;
+	
 	VictimDefenceDef.AttributeToCapture = UKKAttributeSet::GetDefenceAttribute();
 	VictimDefenceDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Target;
 	VictimDefenceDef.bSnapshot = true;
 
-	RelevantAttributesToCapture.Add(VictimHealthDef);
+	RelevantAttributesToCapture.Add(AttackerStrengthDef);
 	RelevantAttributesToCapture.Add(VictimDefenceDef);
 }
 
@@ -23,20 +23,17 @@ float UAttackHealthMagnitudeCalculation::CalculateBaseMagnitude_Implementation(c
 	FAggregatorEvaluateParameters EvaluationParameters;
 	EvaluationParameters.SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	EvaluationParameters.TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
-
-	float Health = 0.f;
-	GetCapturedAttributeMagnitude(VictimHealthDef, Spec, EvaluationParameters, Health);
-
+	
 	float Defence = 0.f;
 	GetCapturedAttributeMagnitude(VictimDefenceDef, Spec, EvaluationParameters, Defence);
 
 	float Strength = 0.f;
 	GetCapturedAttributeMagnitude(AttackerStrengthDef, Spec, EvaluationParameters, Strength);
 
-	const float Damage = Spec.GetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Attack.Damage"),false, Strength);
-	const float Result = Health - FMath::Max(Damage - Defence, 0.f);
-	UE_LOG(LogTemp, Warning, TEXT("Dealing %f damage to the victim -> final health: %f"), Damage, Result);
-	return Result;
+	const float Damage = Spec.GetSetByCallerMagnitude("Damage", false, Strength);
+	const float Result = FMath::Max(Damage - Defence, 0.f);
+	UE_LOG(LogTemp, Warning, TEXT("Dealing %f damage to the victim "), Result);
+	return -Result;
 
 	
 }

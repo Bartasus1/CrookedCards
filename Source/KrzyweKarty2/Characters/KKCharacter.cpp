@@ -15,7 +15,7 @@
 
 #include "Kismet/KismetSystemLibrary.h"
 
-#include "KrzyweKarty2/KKCharacterDeveloperSettings.h"
+#include "KrzyweKarty2/KrzyweKartySettings.h"
 #include "KrzyweKarty2/AbilitySystem/Abilities/KKGameplayAbility.h"
 #include "KrzyweKarty2/Core/KKPlayerState.h"
 #include "KrzyweKarty2/Core/KKGameState.h"
@@ -88,7 +88,7 @@ void AKKCharacter::BeginPlay()
 	AttributeSet->InitFromCharacterStatistics(CharacterDataAsset->CharacterStats);
 	GetAbilitySystemComponent()->AddSpawnedAttribute(AttributeSet);
 
-	UClass* WidgetClass = UKKCharacterDeveloperSettings::Get()->CardWidgetClass.LoadSynchronous();
+	UClass* WidgetClass = UKrzyweKartySettings::Get()->CardWidgetClass.LoadSynchronous();
 	CharacterWidget = CreateWidget<UCharacterWidget>(GetWorld(), WidgetClass);
 	if(CharacterWidget != nullptr)
 	{
@@ -123,7 +123,7 @@ void AKKCharacter::OnConstruction(const FTransform& Transform)
 		return;
 	}
 
-	CardMesh->SetStaticMesh(UKKCharacterDeveloperSettings::Get()->CardMesh.LoadSynchronous());
+	CardMesh->SetStaticMesh(UKrzyweKartySettings::Get()->CardMesh.LoadSynchronous());
 	CardMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
 	
 	if(UMaterialInstanceDynamic* DynamicCardMaterial = CardMesh->CreateAndSetMaterialInstanceDynamic(0))

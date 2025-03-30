@@ -2,7 +2,7 @@
 
 
 #include "KKBlueprintFunctionLibrary.h"
-#include "KKCharacterDeveloperSettings.h"
+#include "KrzyweKartySettings.h"
 
 #include "Characters/KKCharacter.h"
 
@@ -12,7 +12,7 @@
 
 FText UKKBlueprintFunctionLibrary::GetFractionNameByTag(const FGameplayTag& FractionTag)
 {
-	const UKKCharacterDeveloperSettings* DeveloperSettings = UKKCharacterDeveloperSettings::Get();
+	const UKrzyweKartySettings* DeveloperSettings = UKrzyweKartySettings::Get();
 
 	return DeveloperSettings->FractionTagToNameMap.FindRef(FractionTag);
 }

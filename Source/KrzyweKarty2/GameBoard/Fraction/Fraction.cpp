@@ -9,18 +9,18 @@
 #endif
 
 #include "Components/ArrowComponent.h"
-
-#include "KrzyweKarty2/KKCharacterDeveloperSettings.h"
+#include "KrzyweKarty2/KrzyweKartySettings.h"
 #include "KrzyweKarty2/Characters/KKCharacter.h"
 
 
 USpawnIndicator::USpawnIndicator()
 {
-	const UStaticMesh* PlatformMesh = UKKCharacterDeveloperSettings::Get()->CardMesh.LoadSynchronous();
-	BoxExtent = PlatformMesh->GetBoundingBox().GetExtent();
-
-	bWantsInitializeComponent = true;
+	if(const UStaticMesh* PlatformMesh = UKrzyweKartySettings::Get()->CardMesh.LoadSynchronous())
+	{
+		BoxExtent = PlatformMesh->GetBoundingBox().GetExtent();
+	}
 	
+	bWantsInitializeComponent = true;
 }
 
 AFraction::AFraction()

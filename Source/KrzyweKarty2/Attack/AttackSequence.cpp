@@ -2,7 +2,9 @@
 
 
 #include "AttackSequence.h"
+#include "ControlFlow.h"
 #include "ControlFlowManager.h"
+#include "KrzyweKarty2/KrzyweKartySettings.h"
 #include "KrzyweKarty2/Characters/KKCharacter.h"
 
 UAttackSequence::UAttackSequence(): AttackContext()
@@ -34,33 +36,32 @@ void UAttackSequence::BeginAttack()
 
 void UAttackSequence::StopExecution()
 {
-	if(AttackFlow)
-	{
-		AttackFlow->CancelFlow();
-		UE_LOG(LogTemp, Warning, TEXT("Attack canceled!"));
-	}
+	AttackFlow->CancelFlow();
 }
 
 void UAttackSequence::ModifyDamage(int32 InDamage, EGameplayModOp::Type ModificationType)
 {
-	//TODO: proper damage initialization & preparation for damage negotiation during attack
-	const int32 Strength = GetAttacker()->GetStrength();
 	switch (ModificationType)
 	{
 	case EGameplayModOp::Additive:
-		Damage = Strength + InDamage;
+		Damage += InDamage;
 		break;
 	case EGameplayModOp::Override:
 		Damage = InDamage;
 		break;
 	case EGameplayModOp::Multiplicitive:
-		Damage = Strength * InDamage;
+		Damage *= InDamage;
 		break;
 	case EGameplayModOp::Division:
-		Damage = Strength / InDamage;
+		Damage /= InDamage;
+		break;
+	case EGameplayModOp::Max:
+		if(Damage == -1)
+		{
+			Damage = GetAttacker()->GetStrength(); // damage initialization, only if it was not set before
+		}
 		break;
 	default:
-		Damage = Strength; // initialize damage
 		break;
 	}
 }
@@ -72,22 +73,19 @@ void UAttackSequence::ExecuteAttackStage(EAttackStage Stage)
 	{
 		AttackComponent->AttackStageExecution.Broadcast(this);
 	}
-	
-	UE_LOG(LogTemp, Warning, TEXT("Attack stage %s executed"), *UEnum::GetValueAsString(Stage));
 }
 
 void UAttackSequence::ExecuteDamage()
 {
-	const float Level = AttackContext.AbilityIndex;
-	const UAbilitySystemComponent* AbilitySystemComponent = GetAttacker()->GetAbilitySystemComponent();
-	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(AttackGameplayEffectClass, Level, AbilitySystemComponent->MakeEffectContext());
-
-	if(Damage.IsSet())
-	{
-		SpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Attack.Damage"), Damage.Get(GetAttacker()->GetStrength()));
-	}
+	const float Level = FMath::Max<int32>(AttackContext.AbilityIndex, 0);
+	const UGameplayEffect* AttackGameplayEffect = UKrzyweKartySettings::GetAttackGameplayEffect();
+	UAbilitySystemComponent* AbilitySystemComponent = GetAttacker()->GetAbilitySystemComponent();
 	
-	GetAttacker()->GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), GetVictim()->GetAbilitySystemComponent());
+	
+	FGameplayEffectSpec Spec = FGameplayEffectSpec(AttackGameplayEffect, AbilitySystemComponent->MakeEffectContext(), Level);
+	Spec.SetSetByCallerMagnitude("Damage", Damage);
+	
+	AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(Spec, GetVictim()->GetAbilitySystemComponent());
 }
 
 void UAttackSequence::CheckVictimDeath()
@@ -112,6 +110,5 @@ void UAttackSequence::GatherAttackComponents(const AKKCharacter* Character)
 
 bool UAttackSequence::DoesComponentMatchPrerequisites(const UAttackComponent* AttackComponent, const AKKCharacter* Character) const
 {
-	//TODO: add ability index check (maybe make it another class if it gets too messy)
-	return AttackComponent->AttackType == GetAttackType() && AttackContext.DoesCharacterMatchRole(Character, AttackComponent->AttackRole);
+	return AttackComponent->MatchesAttackType(GetAttackType(), GetAbilityIndex()) && AttackContext.DoesCharacterMatchRole(Character, AttackComponent->AttackRole);
 }

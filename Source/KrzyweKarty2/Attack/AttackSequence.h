@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "AttackComponent.h"
-#include "ControlFlow.h"
 #include "GameplayEffectTypes.h"
 
 #include "UObject/Object.h"
 #include "AttackSequence.generated.h"
 
 
+class FControlFlow;
 class AKKCharacter;
 class UGameplayEffect;
 
@@ -28,8 +28,8 @@ struct FAttackContext
 	UPROPERTY(BlueprintReadWrite)
 	EAttackType AttackType = EAttackType::DefaultAttack;
 
-	UPROPERTY(BlueprintReadWrite, meta=(EditCondition="AttackType != EAttackType::DefaultAttack", EditConditionHides))
-	uint8 AbilityIndex = 0;
+	UPROPERTY(BlueprintReadWrite)
+	int32 AbilityIndex = -1;
 
 	bool IsValid() const
 	{
@@ -72,12 +72,9 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, meta=(ExposeOnSpawn="true", AllowPrivateAccess="true"))
 	FAttackContext AttackContext;
-
+	
 	UPROPERTY(BlueprintReadOnly, meta=(ExposeOnSpawn="true", AllowPrivateAccess="true"))
-	TSubclassOf<UGameplayEffect> AttackGameplayEffectClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	TOptional<int32> Damage;
+	int32 Damage = -1; // option to specify damage at the beginning of the attack (other than attacker's strength - useful in abilities)
 	
 protected:
 	
@@ -107,4 +104,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool IsAbilityAttack() const { return AttackContext.AttackType != EAttackType::DefaultAttack; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE int32 GetAbilityIndex() const { return AttackContext.AttackType != EAttackType::DefaultAttack; }
 };

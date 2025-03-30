@@ -213,25 +213,25 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void ModifyAttribute(const FGameplayAttribute& Attribute, const EGameplayModOp::Type Modification, const float Magnitude)
+	FORCEINLINE void ModifyAttribute(const FGameplayAttribute& Attribute, const float Magnitude, const EGameplayModOp::Type Modification)
 	{
 		AbilitySystemComponent->ApplyModToAttribute(Attribute, Modification, Magnitude);
 	}
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void ModifyHealth(const EGameplayModOp::Type Modification, const float Magnitude)
+	FORCEINLINE void ModifyHealth(const float Magnitude, const EGameplayModOp::Type Modification)
 	{
 		AbilitySystemComponent->ApplyModToAttribute(UKKAttributeSet::GetHealthAttribute(), Modification, Magnitude);
 	}
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void ModifyMana(const EGameplayModOp::Type Modification, const float Magnitude)
+	FORCEINLINE void ModifyMana(const float Magnitude, const EGameplayModOp::Type Modification)
 	{
 		AbilitySystemComponent->ApplyModToAttribute(UKKAttributeSet::GetManaAttribute(), Modification, Magnitude);
 	}
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void ModifyDefence(const EGameplayModOp::Type Modification, const float Magnitude)
+	FORCEINLINE void ModifyDefence(const float Magnitude, const EGameplayModOp::Type Modification)
 	{
 		AbilitySystemComponent->ApplyModToAttribute(UKKAttributeSet::GetDefenceAttribute(), Modification, Magnitude);
 	}

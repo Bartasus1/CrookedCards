@@ -22,7 +22,6 @@ public:
 protected:
 
 	FGameplayEffectAttributeCaptureDefinition AttackerStrengthDef;
-	
-	FGameplayEffectAttributeCaptureDefinition VictimHealthDef;
+
 	FGameplayEffectAttributeCaptureDefinition VictimDefenceDef;
 };

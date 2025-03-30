@@ -9,7 +9,7 @@
 void UAttributeWidget::InitializeAttributeWidget(const AKKCharacter* Character)
 {
 	UAbilitySystemComponent* AbilitySystemComponent = Character->GetAbilitySystemComponent();
-	UKKAttributeSet* AttributeSet = Character->GetAttributeSet();
+	const UKKAttributeSet* AttributeSet = Character->GetAttributeSet();
 	
 	const float AttributeValue = Attribute.GetNumericValue(AttributeSet);
 	const int32 MaxAttributeValue = AttributeSet->GetMaxValueForAttribute(Attribute);

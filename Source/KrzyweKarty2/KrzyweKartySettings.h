@@ -3,26 +3,34 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayEffect.h"
+
 #include "Engine/DeveloperSettings.h"
 #include "GameplayTags.h"
-#include "KKCharacterDeveloperSettings.generated.h"
+#include "KrzyweKartySettings.generated.h"
 
 class UCharacterWidget;
+class UGameplayEffect;
 /**
  * 
  */
 UCLASS(Config=Game, DefaultConfig, meta=(DisplayName="Character Default Settings"))
-class KRZYWEKARTY2_API UKKCharacterDeveloperSettings : public UDeveloperSettings
+class KRZYWEKARTY2_API UKrzyweKartySettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
 	
 public:
 
-	UKKCharacterDeveloperSettings();
+	UKrzyweKartySettings();
 
-	static const UKKCharacterDeveloperSettings* Get()
+	static const UKrzyweKartySettings* Get()
 	{
-		return GetDefault<UKKCharacterDeveloperSettings>();
+		return GetDefault<UKrzyweKartySettings>();
+	}
+
+	static const UGameplayEffect* GetAttackGameplayEffect()
+	{
+		return Get()->AttackGameplayEffectClass->GetDefaultObject<UGameplayEffect>();
 	}
  
 	UPROPERTY(EditAnywhere, Config)
@@ -30,6 +38,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Config)
 	TSoftClassPtr<UCharacterWidget> CardWidgetClass;
+
+	UPROPERTY(EditAnywhere, Config)
+	TSubclassOf<UGameplayEffect> AttackGameplayEffectClass;
 
 	UPROPERTY(EditAnywhere, Config, meta=(ForceInlineRow))
 	TMap<FGameplayTag, FText> FractionTagToNameMap;
