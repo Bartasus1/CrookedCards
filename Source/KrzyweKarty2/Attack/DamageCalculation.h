@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "GameplayModMagnitudeCalculation.h"
-#include "AttackHealthMagnitudeCalculation.generated.h"
+#include "DamageCalculation.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class KRZYWEKARTY2_API UAttackHealthMagnitudeCalculation : public UGameplayModMagnitudeCalculation
+class KRZYWEKARTY2_API UDamageCalculation : public UGameplayModMagnitudeCalculation
 {
 	GENERATED_BODY()
 public:
 
-	UAttackHealthMagnitudeCalculation();
+	UDamageCalculation();
 
 	virtual float CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const override;
 

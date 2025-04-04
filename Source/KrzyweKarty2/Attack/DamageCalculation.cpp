@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AttackHealthMagnitudeCalculation.h"
+#include "DamageCalculation.h"
 #include "KrzyweKarty2/AbilitySystem/Attributes/KKAttributeSet.h"
 
-UAttackHealthMagnitudeCalculation::UAttackHealthMagnitudeCalculation()
+UDamageCalculation::UDamageCalculation()
 {
 	AttackerStrengthDef.AttributeToCapture = UKKAttributeSet::GetStrengthAttribute();
 	AttackerStrengthDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
@@ -18,7 +18,7 @@ UAttackHealthMagnitudeCalculation::UAttackHealthMagnitudeCalculation()
 	RelevantAttributesToCapture.Add(VictimDefenceDef);
 }
 
-float UAttackHealthMagnitudeCalculation::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
+float UDamageCalculation::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
 {
 	FAggregatorEvaluateParameters EvaluationParameters;
 	EvaluationParameters.SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
