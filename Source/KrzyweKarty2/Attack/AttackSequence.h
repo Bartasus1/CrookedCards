@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AttackComponent.h"
+#include "AttackProperties.h"
 #include "GameplayEffectTypes.h"
-
 #include "UObject/Object.h"
 #include "AttackSequence.generated.h"
 
 
+class UAttackComponent;
 class FControlFlow;
 class AKKCharacter;
 class UGameplayEffect;

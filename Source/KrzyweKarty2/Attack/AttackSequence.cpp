@@ -2,6 +2,7 @@
 
 
 #include "AttackSequence.h"
+#include "AttackComponent.h"
 #include "ControlFlow.h"
 #include "ControlFlowManager.h"
 #include "KrzyweKarty2/KrzyweKartySettings.h"
@@ -80,7 +81,6 @@ void UAttackSequence::ExecuteDamage()
 	const float Level = FMath::Max<int32>(AttackContext.AbilityIndex, 0);
 	const UGameplayEffect* AttackGameplayEffect = UKrzyweKartySettings::GetAttackGameplayEffect();
 	UAbilitySystemComponent* AbilitySystemComponent = GetAttacker()->GetAbilitySystemComponent();
-	
 	
 	FGameplayEffectSpec Spec = FGameplayEffectSpec(AttackGameplayEffect, AbilitySystemComponent->MakeEffectContext(), Level);
 	Spec.SetSetByCallerMagnitude("Damage", Damage);

@@ -31,7 +31,7 @@ float UDamageCalculation::CalculateBaseMagnitude_Implementation(const FGameplayE
 	GetCapturedAttributeMagnitude(AttackerStrengthDef, Spec, EvaluationParameters, Strength);
 
 	const float Damage = Spec.GetSetByCallerMagnitude("Damage", false, Strength);
-	const float Result = FMath::Max(Damage - Defence, 0.f);
+	const float Result = FMath::Max(Damage - FMath::Max(Defence, 0.f), 0.f);
 	UE_LOG(LogTemp, Warning, TEXT("Dealing %f damage to the victim "), Result);
 	return -Result;
 

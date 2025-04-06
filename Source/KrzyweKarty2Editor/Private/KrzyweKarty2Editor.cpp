@@ -1,6 +1,8 @@
 ﻿#include "KrzyweKarty2Editor.h"
+#include "BlueprintCompilationManager.h"
 #include "EdGraphUtilities.h"
 
+#include "BlueprintExtensions/AttackDelegateCompilerExtension.h"
 #include "CharacterAssetsTools/CharacterAssetsCreationTool.h"
 #include "CharacterSlotStatus/CharacterSlotStatusFactory.h"
 #include "CustomPins/BoardCoordinateGraphPinFactory.h"
@@ -22,6 +24,10 @@ void FKrzyweKarty2EditorModule::StartupModule()
     // CUSTOM PINS //
     const TSharedPtr<FBoardCoordinateGraphPinFactory> BoardCoordinateGraphPinFactoryGraphPinFactory = MakeShareable(new FBoardCoordinateGraphPinFactory());
     FEdGraphUtilities::RegisterVisualPinFactory(BoardCoordinateGraphPinFactoryGraphPinFactory);
+
+	// BLUEPRINT EXTENSIONS //
+	UAttackDelegateCompilerExtension* AttackDelegateCompilerExtension = NewObject<UAttackDelegateCompilerExtension>();
+	FBlueprintCompilationManager::RegisterCompilerExtension(UBlueprint::StaticClass(), AttackDelegateCompilerExtension);
 
 	// TOOLS //
 	FCharacterAssetsCreationTool();

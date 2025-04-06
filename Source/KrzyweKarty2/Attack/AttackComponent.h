@@ -3,37 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AttackProperties.h"
 
 #include "Components/ActorComponent.h"
 #include "AttackComponent.generated.h"
 
 class UAttackSequence;
-
-UENUM()
-enum class EAttackStage : uint8
-{
-	PreAttack UMETA(DisplayName = "Pre-Attack", ToolTip="Pre eliminary attack stage. Can be used to stop it"),
-	Before UMETA(DisplayName = "Before", ToolTip="Before the attack is executed - change applied damage etc."),
-	After UMETA(DisplayName = "After", ToolTip="After the attack is executed - apply post attack effects"),
-	MAX UMETA(Hidden)
-};
-
-ENUM_RANGE_BY_COUNT(EAttackStage, EAttackStage::MAX);
-
-UENUM()
-enum class EAttackRole : uint8
-{
-	Victim UMETA(DisplayName = "Victim", ToolTip="The character is a victim of the attack"),
-	Attacker UMETA(DisplayName = "Attacker", ToolTip="The character is an attacker")
-};
-
-UENUM()
-enum class EAttackType : uint8
-{
-	DefaultAttack,
-	Ability
-};
-
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAttackStageExecutionDelegate, UAttackSequence*, AttackSequence);
 
@@ -52,13 +27,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	EAttackRole AttackRole = EAttackRole::Attacker;
 
-	UPROPERTY(EditDefaultsOnly, meta=(InlineEditConditionToggle))
-	bool AnyAttackType = false; // Turn off for any attack type
+	UPROPERTY(EditDefaultsOnly, meta=(Bitmask, BitmaskEnum="EAttackType"))
+	uint8 AttackType = EAttackType::DefaultAttack | EAttackType::Ability;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(EditCondition="!AnyAttackType"))
-	EAttackType AttackType = EAttackType::DefaultAttack;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(EditCondition="!AnyAttackType && AttackType != EAttackType::DefaultAttack && AttackRole != EAttackRole::Victim", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(EditCondition="(AttackType & EAttackType::Ability) && AttackRole != EAttackRole::Victim", EditConditionHides))
 	uint8 AbilityIndex = 0;
 
 public:
@@ -69,10 +41,18 @@ public:
 	
 	bool MatchesAttackType(const EAttackType InAttackType, const int32 InAbilityIndex = -1) const
 	{
-		const bool bMatchesAttackType = AnyAttackType || AttackType == InAttackType;
-		const bool bAbilityIndexRelevant = AttackType != EAttackType::DefaultAttack && AttackRole != EAttackRole::Victim;
-		const bool bMatchesAbilityIndex = !bAbilityIndexRelevant || InAbilityIndex == -1 || AbilityIndex == InAbilityIndex;
+		bool bIsMatchingIndex = true;
+		if(InAttackType == EAttackType::Ability && AttackRole == EAttackRole::Attacker && InAbilityIndex != -1)
+		{
+			bIsMatchingIndex = (AbilityIndex == InAbilityIndex);
+		}
+		
+		return IsAttackTypePresent(InAttackType) && bIsMatchingIndex;
+	}
 
-		return bMatchesAttackType && bMatchesAbilityIndex;
+	bool IsAttackTypePresent(const EAttackType InAttackType) const
+	{
+		return AttackType & InAttackType;
 	}
 };
+
