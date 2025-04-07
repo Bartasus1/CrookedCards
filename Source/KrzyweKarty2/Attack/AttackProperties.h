@@ -1,5 +1,8 @@
 #pragma once
 
+
+class AKKCharacter;
+
 UENUM()
 enum class EAttackStage : uint8
 {
@@ -24,6 +27,37 @@ enum class EAttackType : uint8
 	DefaultAttack	= 1 << 0,
 	Ability			= 1 << 1,
 };
+
+struct FAttackContext
+{
+	
+	AKKCharacter* Attacker;
+	
+	AKKCharacter* Victim;
+	
+	EAttackType AttackType = EAttackType::DefaultAttack;
+	
+	TOptional<uint8> AbilityIndex;
+
+	bool IsValid() const
+	{
+		return Attacker && Victim;
+	}
+
+	bool DoesCharacterMatchRole(const AKKCharacter* Character, const EAttackRole AttackRole) const
+	{
+		switch (AttackRole)
+		{
+		case EAttackRole::Attacker:
+			return Character == Attacker;
+		case EAttackRole::Victim:
+			return Character == Victim;
+		default:
+			return false;
+		}
+	}
+};
+
 
 constexpr uint8 operator|(EAttackType A, EAttackType B)
 {

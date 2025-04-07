@@ -9,6 +9,8 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "KKBlueprintFunctionLibrary.generated.h"
 
+struct FGameBoardQuery;
+class UAttackSequence;
 struct FQueryTest;
 class UGameBoardQuery;
 struct FRelativeDirection;
@@ -29,7 +31,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, meta=(WorldContext="WorldContextObject"))
 	static AKKGameBoard* GetGameBoard(const UObject* WorldContextObject);
-	
-	UFUNCTION(BlueprintCallable)
-	static TArray<ACharacterSlot*> QueryCharacterSlots(const AKKCharacter* Character, const FInstancedStruct& Query);
+
+	static TArray<ACharacterSlot*> QueryCharacterSlots(const AKKCharacter* Character, const FInstancedStruct& GameBoardQuery);
+	static TArray<ACharacterSlot*> QueryCharacterSlots(const AKKCharacter* Character, const FGameBoardQuery* GameBoardQuery);
+	//TODO make a custom K2_Node for BP Query function that will take FGameboardQuery derived structs as input
 };

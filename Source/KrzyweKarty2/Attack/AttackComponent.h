@@ -39,12 +39,12 @@ public:
 
 public:
 	
-	bool MatchesAttackType(const EAttackType InAttackType, const int32 InAbilityIndex = -1) const
+	bool MatchesAttackType(const EAttackType InAttackType, const TOptional<uint8>& InAbilityIndex) const
 	{
 		bool bIsMatchingIndex = true;
-		if(InAttackType == EAttackType::Ability && AttackRole == EAttackRole::Attacker && InAbilityIndex != -1)
+		if(InAttackType == EAttackType::Ability && AttackRole == EAttackRole::Attacker && InAbilityIndex.IsSet())
 		{
-			bIsMatchingIndex = (AbilityIndex == InAbilityIndex);
+			bIsMatchingIndex = (AbilityIndex == InAbilityIndex.Get(0));
 		}
 		
 		return IsAttackTypePresent(InAttackType) && bIsMatchingIndex;

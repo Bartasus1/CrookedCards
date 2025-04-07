@@ -23,12 +23,15 @@ AKKGameBoard* UKKBlueprintFunctionLibrary::GetGameBoard(const UObject* WorldCont
 	return GameState->GetGameBoard();
 }
 
+TArray<ACharacterSlot*> UKKBlueprintFunctionLibrary::QueryCharacterSlots(const AKKCharacter* Character, const FInstancedStruct& GameBoardQuery)
+{
+	const FGameBoardQuery* GameBoardQueryPtr = GameBoardQuery.GetPtr<FGameBoardQuery>();
+	check(GameBoardQueryPtr);
+	return QueryCharacterSlots(Character, GameBoardQueryPtr);
+}
 
-TArray<ACharacterSlot*> UKKBlueprintFunctionLibrary::QueryCharacterSlots(const AKKCharacter* Character, const FInstancedStruct& Query)
+TArray<ACharacterSlot*> UKKBlueprintFunctionLibrary::QueryCharacterSlots(const AKKCharacter* Character, const FGameBoardQuery* GameBoardQuery)
 {
 	const AKKGameBoard* GameBoard = GetGameBoard(Character);
-	const FGameBoardQuery* GameBoardQuery = Query.GetPtr<FGameBoardQuery>();
-
-	check(GameBoardQuery);
 	return GameBoardQuery->ExecuteQuery(GameBoard, Character);
 }
